@@ -1341,6 +1341,7 @@ function renderSummary() {
     // Render goal progress
     renderGoalProgress();
     renderRecommendations();
+    renderRiskAnalysis();
 }
 
 // ==========================================
@@ -3542,6 +3543,7 @@ switchPanel = function(panelName) {
         setTimeout(() => {
             renderGoalProgress();
             renderRecommendations();
+            renderRiskAnalysis();
         }, 100);
     }
 };
@@ -4461,5 +4463,265 @@ function generateAnalysisHTML(yearlyData, goals, profile) {
 </body>
 </html>
     `;
+}
+
+
+// ==========================================
+// RISK ANALYSIS
+// ==========================================
+
+function analyzeRisk() {
+    const plan = getCurrentPlan();
+    const goals = appData.goals;
+    const currentYear = new Date().getFullYear();
+    
+    // Calculate current equity allocation
+    const equityInvestments = plan.investments.filter(inv => 
+        inv.include && inv.type !== 'פנסיה' && inv.type !== 'עו"ש' && inv.type !== 'פיקדון'
+    );
+    
+    const totalEquity = equityInvestments.reduce((sum, inv) => sum + inv.amount, 0);
+    if (totalEquity === 0) return null;
+    
+    // Calculate stock percentage (high risk)
+    const highRiskTypes = ['מניות סחיר', 'תיק עצמאי'];
+    const highRiskAmount = equityInvestments
+        .filter(inv => highRiskTypes.includes(inv.type))
+        .reduce((sum, inv) => sum + inv.amount, 0);
+    
+    const currentStockPercentage = (highRiskAmount / totalEquity) * 100;
+    
+    // Analyze each goal
+    const goalRiskAnalysis = [];
+    
+    // Equity goal
+    if (goals.equity.targetYear) {
+        const yearsUntil = goals.equity.targetYear - currentYear;
+        const recommendedStock = calculateRecommendedStock(yearsUntil);
+        
+        goalRiskAnalysis.push({
+            name: 'הון עצמי',
+            year: goals.equity.targetYear,
+            yearsUntil,
+            currentStock: currentStockPercentage,
+            recommendedStock,
+            riskLevel: getRiskLevel(yearsUntil),
+            status: getStockStatus(currentStockPercentage, recommendedStock)
+        });
+    }
+    
+    // Life goals
+    goals.lifeGoals.forEach(goal => {
+        const yearsUntil = goal.year - currentYear;
+        if (yearsUntil > 0) {
+            const recommendedStock = calculateRecommendedStock(yearsUntil);
+            
+            goalRiskAnalysis.push({
+                name: goal.name,
+                year: goal.year,
+                yearsUntil,
+                currentStock: currentStockPercentage,
+                recommendedStock,
+                riskLevel: getRiskLevel(yearsUntil),
+                status: getStockStatus(currentStockPercentage, recommendedStock)
+            });
+        }
+    });
+    
+    return {
+        currentStockPercentage,
+        goals: goalRiskAnalysis,
+        overallRisk: currentStockPercentage > 60 ? 'high' : currentStockPercentage > 40 ? 'medium' : 'low'
+    };
+}
+
+function calculateRecommendedStock(yearsUntil) {
+    // Rule of thumb: 100 - years until goal = % stocks
+    // But with floors and ceilings
+    if (yearsUntil <= 3) return 20;       // Very conservative
+    if (yearsUntil <= 5) return 30;       // Conservative
+    if (yearsUntil <= 10) return 50;      // Balanced
+    if (yearsUntil <= 15) return 60;      // Moderate
+    return 70;                             // Aggressive
+}
+
+function getRiskLevel(yearsUntil) {
+    if (yearsUntil <= 5) return 'שמרני';
+    if (yearsUntil <= 10) return 'מאוזן';
+    return 'אגרסיבי';
+}
+
+function getStockStatus(current, recommended) {
+    const diff = current - recommended;
+    if (Math.abs(diff) <= 10) return 'good';      // Within 10%
+    if (diff > 10) return 'too_risky';             // Too much stock
+    return 'too_conservative';                     // Too little stock
+}
+
+// ==========================================
+// DIVERSIFICATION ANALYSIS
+// ==========================================
+
+function analyzeDiversification() {
+    const plan = getCurrentPlan();
+    
+    // Group by investment house
+    const byHouse = {};
+    const totalAmount = plan.investments
+        .filter(inv => inv.include)
+        .reduce((sum, inv) => sum + inv.amount, 0);
+    
+    if (totalAmount === 0) return null;
+    
+    plan.investments
+        .filter(inv => inv.include)
+        .forEach(inv => {
+            const house = inv.house || 'לא מוגדר';
+            if (!byHouse[house]) {
+                byHouse[house] = { amount: 0, investments: [] };
+            }
+            byHouse[house].amount += inv.amount;
+            byHouse[house].investments.push(inv);
+        });
+    
+    // Calculate percentages and identify concentration risk
+    const distribution = Object.entries(byHouse).map(([house, data]) => ({
+        house,
+        amount: data.amount,
+        percentage: (data.amount / totalAmount) * 100,
+        investments: data.investments.length,
+        risk: data.amount / totalAmount > 0.3 ? 'high' : 'medium'
+    })).sort((a, b) => b.amount - a.amount);
+    
+    // Find concentrated houses (>30%)
+    const concentrated = distribution.filter(d => d.percentage > 30);
+    
+    return {
+        distribution,
+        concentrated,
+        totalHouses: distribution.length,
+        diversificationScore: calculateDiversificationScore(distribution)
+    };
+}
+
+function calculateDiversificationScore(distribution) {
+    // Simple score: 100 - (concentration penalty)
+    let score = 100;
+    
+    distribution.forEach(d => {
+        if (d.percentage > 40) score -= 30;        // Major concentration
+        else if (d.percentage > 30) score -= 15;   // Moderate concentration
+    });
+    
+    // Bonus for having multiple houses
+    if (distribution.length >= 4) score += 10;
+    else if (distribution.length <= 2) score -= 20;
+    
+    return Math.max(0, Math.min(100, score));
+}
+
+function renderRiskAnalysis() {
+    const container = document.getElementById('riskAnalysis');
+    if (!container) return;
+    
+    const riskAnalysis = analyzeRisk();
+    const divAnalysis = analyzeDiversification();
+    
+    if (!riskAnalysis && !divAnalysis) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    let html = '<div class="card" style="margin-top: 20px;">';
+    html += '<h3 style="margin: 0 0 20px 0;">🎯 ניתוח סיכונים ופיזור</h3>';
+    
+    // Risk Analysis
+    if (riskAnalysis) {
+        html += '<div style="margin-bottom: 30px;">';
+        html += '<h4 style="margin-bottom: 16px;">📊 ניתוח סיכון לפי אופק זמן</h4>';
+        html += `<div style="padding: 16px; background: #f3f4f6; border-radius: 8px; margin-bottom: 16px;">
+            <strong>חשיפה נוכחית למניות:</strong> ${riskAnalysis.currentStockPercentage.toFixed(0)}%
+        </div>`;
+        
+        html += '<div style="display: grid; gap: 12px;">';
+        
+        riskAnalysis.goals.forEach(goal => {
+            const statusColor = goal.status === 'good' ? '#10b981' : 
+                               goal.status === 'too_risky' ? '#ef4444' : '#f59e0b';
+            const statusIcon = goal.status === 'good' ? '✅' : 
+                              goal.status === 'too_risky' ? '⚠️' : '💡';
+            const statusText = goal.status === 'good' ? 'מתאים' : 
+                              goal.status === 'too_risky' ? 'סיכון גבוה מדי' : 'שמרני מדי';
+            
+            html += `
+                <div style="padding: 16px; background: white; border: 2px solid ${statusColor}; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div>
+                            <div style="font-weight: bold; font-size: 1.1em;">${goal.name}</div>
+                            <div style="font-size: 0.9em; color: #666;">${goal.year} (בעוד ${goal.yearsUntil} שנים) • רמת סיכון: ${goal.riskLevel}</div>
+                        </div>
+                        <div style="font-size: 1.5em;">${statusIcon}</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+                        <div>
+                            <div style="font-size: 0.85em; color: #666;">מניות מומלץ</div>
+                            <div style="font-size: 1.2em; font-weight: bold; color: #1f2937;">${goal.recommendedStock}%</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.85em; color: #666;">סטטוס</div>
+                            <div style="font-size: 1.1em; font-weight: bold; color: ${statusColor};">${statusText}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += '</div></div>';
+    }
+    
+    // Diversification Analysis
+    if (divAnalysis) {
+        html += '<div>';
+        html += '<h4 style="margin-bottom: 16px;">🏦 ניתוח פיזור בין גופים</h4>';
+        
+        const scoreColor = divAnalysis.diversificationScore >= 70 ? '#10b981' : 
+                          divAnalysis.diversificationScore >= 50 ? '#f59e0b' : '#ef4444';
+        
+        html += `<div style="padding: 16px; background: rgba(${divAnalysis.diversificationScore >= 70 ? '16, 185, 129' : divAnalysis.diversificationScore >= 50 ? '245, 158, 11' : '239, 68, 68'}, 0.1); border-radius: 8px; margin-bottom: 16px; border-right: 4px solid ${scoreColor};">
+            <strong>ציון פיזור:</strong> ${divAnalysis.diversificationScore}/100
+            ${divAnalysis.diversificationScore < 70 ? ' ⚠️ יש מקום לשיפור' : ' ✅ פיזור טוב'}
+        </div>`;
+        
+        if (divAnalysis.concentrated.length > 0) {
+            html += '<div style="padding: 12px; background: #fef2f2; border-right: 4px solid #ef4444; border-radius: 8px; margin-bottom: 16px;">';
+            html += '<strong style="color: #ef4444;">⚠️ ריכוזיות מוגזמת:</strong><br>';
+            divAnalysis.concentrated.forEach(c => {
+                html += `<div style="margin-top: 8px;">• ${c.house}: ${c.percentage.toFixed(0)}% (${formatCurrency(c.amount)})</div>`;
+            });
+            html += '</div>';
+        }
+        
+        html += '<div style="display: grid; gap: 8px;">';
+        divAnalysis.distribution.forEach(d => {
+            const barColor = d.risk === 'high' ? '#ef4444' : '#3b82f6';
+            html += `
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="font-weight: 500;">${d.house}</span>
+                        <span>${d.percentage.toFixed(0)}% • ${formatCurrency(d.amount)}</span>
+                    </div>
+                    <div style="background: #e5e7eb; height: 24px; border-radius: 12px; overflow: hidden;">
+                        <div style="background: ${barColor}; height: 100%; width: ${d.percentage}%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
 }
 
