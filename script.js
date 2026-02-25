@@ -3918,28 +3918,53 @@ function generateRecommendations(analysis) {
     
     // 1. Pension recommendations
     if (analysis.pension && analysis.pension.gap > 0) {
-        const gap = analysis.pension.gap;
+        const gap = analysis.pension.gap; // Gap in monthly pension (real after tax)
         const yearsUntil = analysis.pension.yearsUntil;
         
         if (yearsUntil > 0) {
-            // Calculate monthly deposit needed
-            const RETURN_RATE = 0.05; // 5% assumed
+            // Get current pension deposits
+            const pensions = plan.investments.filter(inv => inv.include && inv.type === 'פנסיה');
+            const currentMonthly = pensions.reduce((sum, inv) => sum + (inv.monthly || 0), 0);
+            const currentPrincipal = pensions.reduce((sum, inv) => sum + (inv.amount || 0), 0);
+            
+            // We need to find how much ADDITIONAL monthly deposit will close the gap
+            // Gap is in monthly pension (real after tax)
+            // Need to reverse engineer: monthly pension → future value needed → additional PMT
+            
+            const RETURN_RATE = 0.05;
             const monthlyRate = RETURN_RATE / 12;
             const months = yearsUntil * 12;
+            const INFLATION = 0.02;
+            const inflationFactor = Math.pow(1 + INFLATION, yearsUntil);
             
-            // Future value needed for monthly pension gap
-            const pensionMultiplier = 240; // ~20 years of pension
-            const futureValueNeeded = gap * pensionMultiplier;
+            // Convert gap (real) to nominal
+            const gapNominal = gap * inflationFactor;
             
-            // PMT calculation: FV = PMT * ((1+r)^n - 1) / r
-            const monthlyNeeded = futureValueNeeded / (((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate));
+            // Future value needed for this gap (using pension coefficient)
+            // Reverse of: monthlyPension = balance * 0.005
+            const futureValueNeeded = gapNominal / 0.005; // Assuming male coefficient
             
-            if (monthlyNeeded > 0 && monthlyNeeded < 50000) {
+            // Current trajectory (what we'll have)
+            const currentTrajectory = calculateFV(currentPrincipal, currentMonthly, RETURN_RATE, yearsUntil, 0, 0, null);
+            
+            // Total FV needed
+            const totalFVNeeded = currentTrajectory + futureValueNeeded;
+            
+            // Calculate total monthly needed to reach totalFVNeeded
+            // FV = Principal*(1+r)^n + PMT*((1+r)^n - 1)/r
+            // Solve for PMT: PMT = (FV - Principal*(1+r)^n) * r / ((1+r)^n - 1)
+            const principalGrowth = currentPrincipal * Math.pow(1 + monthlyRate, months);
+            const totalMonthlyNeeded = (totalFVNeeded - principalGrowth) * monthlyRate / (Math.pow(1 + monthlyRate, months) - 1);
+            
+            // Additional needed
+            const additionalMonthly = Math.max(0, totalMonthlyNeeded - currentMonthly);
+            
+            if (additionalMonthly > 0 && additionalMonthly < 50000) {
                 recommendations.push({
                     type: 'pension',
                     icon: '💰',
                     title: 'הגדל הפקדה לפנסיה',
-                    message: `כדי להגיע ליעד הקצבה, הפקד ${formatCurrency(Math.round(monthlyNeeded / 100) * 100)} נוספים לחודש`,
+                    message: `כדי להגיע ליעד הקצבה, הפקד ${formatCurrency(Math.round(additionalMonthly / 100) * 100)} נוספים לחודש (סה"כ ${formatCurrency(Math.round((currentMonthly + additionalMonthly) / 100) * 100)}/חודש)`,
                     priority: 'high'
                 });
             } else if (analysis.pension.percentage < 70) {
@@ -3956,33 +3981,44 @@ function generateRecommendations(analysis) {
     
     // 2. Equity recommendations
     if (analysis.equity && analysis.equity.gap > 0) {
-        const gap = analysis.equity.gap;
+        const gap = analysis.equity.gap; // Gap in final equity (real)
         const yearsUntil = analysis.equity.yearsUntil;
         
         if (yearsUntil > 0) {
-            // Current monthly deposits in non-pension
-            const currentMonthly = plan.investments
-                .filter(inv => inv.include && inv.type !== 'פנסיה')
-                .reduce((sum, inv) => sum + (inv.monthly || 0), 0);
+            // Get current equity deposits
+            const equityInvestments = plan.investments.filter(inv => inv.include && inv.type !== 'פנסיה');
+            const currentMonthly = equityInvestments.reduce((sum, inv) => sum + (inv.monthly || 0), 0);
+            const currentEquity = equityInvestments.reduce((sum, inv) => sum + (inv.amount || 0), 0);
             
-            // Calculate needed return rate
-            const currentEquity = plan.investments
-                .filter(inv => inv.include && inv.type !== 'פנסיה')
-                .reduce((sum, inv) => sum + inv.amount, 0);
-            
-            const CURRENT_RETURN = 0.06; // 6% assumed
-            const monthlyRate = CURRENT_RETURN / 12;
+            const RETURN_RATE = 0.06;
+            const monthlyRate = RETURN_RATE / 12;
             const months = yearsUntil * 12;
+            const INFLATION = 0.02;
+            const inflationFactor = Math.pow(1 + INFLATION, yearsUntil);
             
-            // Calculate monthly deposit needed
-            const monthlyNeeded = gap / (((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate));
+            // Gap is in real terms, convert to nominal for calculation
+            const gapNominal = gap * inflationFactor;
             
-            if (monthlyNeeded > 0 && monthlyNeeded < 100000) {
+            // Current trajectory
+            const currentTrajectory = calculateFV(currentEquity, currentMonthly, RETURN_RATE, yearsUntil, 0, 0, null);
+            
+            // Total needed
+            const totalNeeded = currentTrajectory + gapNominal;
+            
+            // Calculate total monthly needed
+            // FV = Principal*(1+r)^n + PMT*((1+r)^n - 1)/r
+            const principalGrowth = currentEquity * Math.pow(1 + monthlyRate, months);
+            const totalMonthlyNeeded = (totalNeeded - principalGrowth) * monthlyRate / (Math.pow(1 + monthlyRate, months) - 1);
+            
+            // Additional needed
+            const additionalMonthly = Math.max(0, totalMonthlyNeeded - currentMonthly);
+            
+            if (additionalMonthly > 0 && additionalMonthly < 100000) {
                 recommendations.push({
                     type: 'equity',
                     icon: '💎',
                     title: 'הגדל הפקדה להון עצמי',
-                    message: `כדי להגיע ליעד ההון, הפקד ${formatCurrency(Math.round(monthlyNeeded / 100) * 100)} נוספים לחודש`,
+                    message: `כדי להגיע ליעד ההון, הפקד ${formatCurrency(Math.round(additionalMonthly / 100) * 100)} נוספים לחודש (סה"כ ${formatCurrency(Math.round((currentMonthly + additionalMonthly) / 100) * 100)}/חודש)`,
                     priority: 'high'
                 });
             } else if (analysis.equity.percentage < 70) {
@@ -4134,12 +4170,17 @@ function generateAnalysisReport() {
     
     const yearlyData = [];
     
-    // Calculate current equity (year 0) - don't filter by include, just by type
-    const currentEquity = plan.investments
-        .filter(inv => inv.type !== 'פנסיה')
-        .reduce((sum, inv) => sum + inv.amount, 0);
+    // Calculate current equity (year 0)
+    const allInvestments = plan.investments || [];
+    const nonPension = allInvestments.filter(inv => inv.type !== 'פנסיה');
+    const currentEquity = nonPension.reduce((sum, inv) => sum + (inv.amount || 0), 0);
     
-    console.log('Current equity calculation:', currentEquity, 'from', plan.investments.length, 'investments');
+    console.log('=== EQUITY DEBUG ===');
+    console.log('Total investments:', allInvestments.length);
+    console.log('Non-pension:', nonPension.length);
+    console.log('Non-pension details:', nonPension.map(i => ({name: i.name, amount: i.amount})));
+    console.log('Current equity:', currentEquity);
+    console.log('==================');
     
     for (let year = currentYear; year <= maxYear; year++) {
         const yearsFromNow = year - currentYear;
