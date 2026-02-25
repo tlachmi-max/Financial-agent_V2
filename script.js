@@ -3329,7 +3329,7 @@ function saveProfile() {
     }
     
     saveData();
-    alert('✅ הפרופיל נשמר בהצלחה!');
+    showSaveNotification('✅ הפרופיל נשמר בהצלחה!');
 }
 
 // Update switchPanel to load profile
@@ -3479,7 +3479,9 @@ function saveGoals() {
     goals.equity.isRealValue = document.getElementById('goalEquityIsReal').checked;
     
     saveData();
-    alert('✅ היעדים נשמרו בהצלחה!');
+    
+    // Visual feedback
+    showSaveNotification('✅ היעדים נשמרו בהצלחה!');
 }
 
 // Update switchPanel to load goals
@@ -3488,6 +3490,10 @@ switchPanel = function(panelName) {
     originalSwitchPanel2(panelName);
     if (panelName === 'goals') {
         loadGoals();
+    }
+    if (panelName === 'summary') {
+        // Render goal progress when switching to summary
+        setTimeout(() => renderGoalProgress(), 100);
     }
 };
 
@@ -3723,5 +3729,67 @@ function renderGoalProgress() {
     
     html += '</div></div>';
     container.innerHTML = html;
+}
+
+
+// ==========================================
+// UI NOTIFICATIONS
+// ==========================================
+
+function showSaveNotification(message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        font-size: 1.1em;
+        font-weight: bold;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+    `;
+    notification.textContent = message;
+    
+    // Add animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
 }
 
