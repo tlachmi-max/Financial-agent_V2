@@ -97,9 +97,9 @@
                 <span>📊</span>
                 <span>מסלולי השקעה</span>
             </button>
-            <button class="nav-item" data-panel="dreams" onclick="switchPanel('dreams')">
+            <button class="nav-item" data-panel="goals" onclick="switchPanel('goals')">
                 <span>🎯</span>
-                <span>חלומות</span>
+                <span>יעדים</span>
             </button>
             <button class="nav-item" data-panel="roadmap" onclick="switchPanel('roadmap')">
                 <span>📍</span>
@@ -443,69 +443,71 @@
             </div>
 
             <!-- Panel 2: Dreams -->
-            <div id="dreams" class="panel">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <span>🎯</span>
-                            <span>הגדר חלום פיננסי</span>
-                        </div>
-                    </div>
-                    
-                    <form id="dreamForm" onsubmit="saveDream(event)">
+            <div id="goals" class="panel">
+                <h2 class="mb-4">🎯 יעדים פיננסיים</h2>
+                
+                <!-- Retirement Goals -->
+                <div class="card mb-4">
+                    <div class="card-title">💰 יעדי פנסיה</div>
+                    <div style="margin-top: 16px;">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <span class="required">*</span>
-                                    שם החלום
-                                </label>
-                                <input type="text" class="form-input" id="dreamName" placeholder="קניית דירה" required>
+                                <label class="form-label">גיל פרישה מתוכנן (משתמש)</label>
+                                <input type="number" class="form-input" id="goalRetirementAgeUser" min="50" max="80" placeholder="67">
                             </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <span class="required">*</span>
-                                    עלות (₪)
-                                </label>
-                                <input type="text" inputmode="numeric" pattern="[0-9,\.]*" class="form-input" id="dreamCost" value="0" placeholder="0" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <span class="required">*</span>
-                                    שנת יעד
-                                </label>
-                                <input type="number" class="form-input" id="dreamYear" value="2030" min="2025" max="2060" required>
-                            </div>
-                            
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label class="form-label">מקורות מימון (אפשר לבחור מספר)</label>
-                                <select class="form-select" id="dreamSources" multiple style="min-height: 120px;">
-                                    <option value="">לא מוגדר</option>
-                                </select>
-                                <p class="sub-tracks-note" style="margin-top: 8px;">
-                                    החלום יתחלק באופן שווה בין המקורות הנבחרים.
-                                    <br>
-                                    <small>💡 טיפ: החזק Ctrl/Cmd ולחץ לבחירת מספר מסלולים</small>
-                                </p>
+                            <div class="form-group" id="goalSpouseRetirementGroup">
+                                <label class="form-label">גיל פרישה מתוכנן (בן/בת זוג)</label>
+                                <input type="number" class="form-input" id="goalRetirementAgeSpouse" min="50" max="80" placeholder="62">
                             </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-success btn-full">
-                            <span>💾</span>
-                            <span>שמור חלום</span>
-                        </button>
-                    </form>
-                </div>
-                
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <span>📋</span>
-                            <span>חלומות קיימים (<span id="dreamCount">0</span>)</span>
+                        <div class="form-group">
+                            <label class="form-label">קצבה חודשית רצויה (₪)</label>
+                            <input type="number" class="form-input" id="goalMonthlyPension" min="0" placeholder="15000">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
+                            <input type="checkbox" id="goalPensionIsReal" checked style="width: 20px; height: 20px;">
+                            <label for="goalPensionIsReal">בערכי היום (ריאלי)</label>
                         </div>
                     </div>
-                    <div id="dreamsList" class="items-list"></div>
+                </div>
+                
+                <!-- Equity Goal -->
+                <div class="card mb-4">
+                    <div class="card-title">💎 יעד הון עצמאי בפרישה</div>
+                    <div style="margin-top: 16px;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">סכום יעד (₪)</label>
+                                <input type="number" class="form-input" id="goalEquityAmount" min="0" placeholder="2000000">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">שנת יעד</label>
+                                <input type="number" class="form-input" id="goalEquityYear" min="2026" max="2100" placeholder="2054">
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
+                            <input type="checkbox" id="goalEquityIsReal" checked style="width: 20px; height: 20px;">
+                            <label for="goalEquityIsReal">בערכי היום (ריאלי)</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Life Goals -->
+                <div class="card mb-4">
+                    <div class="card-title">🎯 יעדי חיים</div>
+                    <div id="lifeGoalsList" style="margin-top: 16px;"></div>
+                    <button class="btn btn-primary" onclick="addLifeGoal()" style="margin-top: 12px;">
+                        <span>+</span>
+                        <span>הוסף יעד</span>
+                    </button>
+                </div>
+                
+                <!-- Save Button -->
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button class="btn btn-primary" onclick="saveGoals()">
+                        <span>💾</span>
+                        <span>שמור יעדים</span>
+                    </button>
                 </div>
             </div>
 

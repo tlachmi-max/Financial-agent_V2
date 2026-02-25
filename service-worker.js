@@ -1,5 +1,5 @@
 // Service Worker for Financial Planner PWA
-const CACHE_NAME = 'financial-planner-v23';  // ← v23 - Profile tab (Phase 1.1)!
+const CACHE_NAME = 'financial-planner-v24';  // ← v24 - Goals tab (Phase 1.2)!
 const ASSETS_TO_CACHE = [
     '/index.html',
     '/style.css',

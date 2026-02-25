@@ -182,7 +182,31 @@ function saveData() {
 function loadData() {
     try {
         const saved = localStorage.getItem('financialPlannerProV3');
-        if (saved) appData = JSON.parse(saved);
+        if (saved) {
+            const loadedData = JSON.parse(saved);
+            
+            // Preserve profile if it doesn't exist in loaded data
+            if (!loadedData.profile && appData.profile) {
+                loadedData.profile = appData.profile;
+            }
+            
+            // Ensure profile structure exists
+            if (!loadedData.profile) {
+                loadedData.profile = {
+                    maritalStatus: 'married',
+                    user: { name: '', age: null, gender: 'male' },
+                    spouse: { name: '', age: null, gender: 'female' },
+                    children: []
+                };
+            }
+            
+            // Ensure children array exists
+            if (!loadedData.profile.children) {
+                loadedData.profile.children = [];
+            }
+            
+            appData = loadedData;
+        }
     } catch (e) {
         console.error('Load error:', e);
     }
@@ -3212,6 +3236,8 @@ function removeChild(index) {
 
 function renderChildren() {
     const container = document.getElementById('childrenList');
+    if (!container) return; // Container not loaded yet
+    
     const children = appData.profile.children;
     
     if (children.length === 0) {
@@ -3309,6 +3335,156 @@ switchPanel = function(panelName) {
     originalSwitchPanel(panelName);
     if (panelName === 'profile') {
         loadProfile();
+    }
+};
+
+
+// ==========================================
+// GOALS MANAGEMENT
+// ==========================================
+
+// Initialize goals in appData
+if (!appData.goals) {
+    appData.goals = {
+        retirement: {
+            userAge: null,
+            spouseAge: null,
+            monthlyPension: null,
+            isRealValue: true
+        },
+        equity: {
+            targetAmount: null,
+            targetYear: null,
+            isRealValue: true
+        },
+        lifeGoals: []
+    };
+}
+
+function loadGoals() {
+    const goals = appData.goals;
+    const profile = appData.profile;
+    
+    // Retirement
+    document.getElementById('goalRetirementAgeUser').value = goals.retirement.userAge || '';
+    document.getElementById('goalRetirementAgeSpouse').value = goals.retirement.spouseAge || '';
+    document.getElementById('goalMonthlyPension').value = goals.retirement.monthlyPension || '';
+    document.getElementById('goalPensionIsReal').checked = goals.retirement.isRealValue !== false;
+    
+    // Show/hide spouse retirement based on marital status
+    if (profile.maritalStatus === 'single') {
+        document.getElementById('goalSpouseRetirementGroup').style.display = 'none';
+    } else {
+        document.getElementById('goalSpouseRetirementGroup').style.display = 'block';
+    }
+    
+    // Equity
+    document.getElementById('goalEquityAmount').value = goals.equity.targetAmount || '';
+    document.getElementById('goalEquityYear').value = goals.equity.targetYear || '';
+    document.getElementById('goalEquityIsReal').checked = goals.equity.isRealValue !== false;
+    
+    // Life goals
+    renderLifeGoals();
+}
+
+function addLifeGoal() {
+    const name = prompt('שם היעד:');
+    if (!name || name.trim() === '') return;
+    
+    const amountStr = prompt('סכום (₪):');
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+        alert('סכום לא תקין');
+        return;
+    }
+    
+    const yearStr = prompt('שנת יעד:');
+    const year = parseInt(yearStr);
+    const currentYear = new Date().getFullYear();
+    if (isNaN(year) || year < currentYear || year > 2100) {
+        alert('שנה לא תקינה');
+        return;
+    }
+    
+    const goal = {
+        id: `goal_${Date.now()}`,
+        name: name.trim(),
+        amount,
+        year,
+        isRealValue: true,
+        priority: 'medium'
+    };
+    
+    appData.goals.lifeGoals.push(goal);
+    saveData();
+    renderLifeGoals();
+}
+
+function removeLifeGoal(index) {
+    if (!confirm('האם למחוק יעד זה?')) return;
+    
+    appData.goals.lifeGoals.splice(index, 1);
+    saveData();
+    renderLifeGoals();
+}
+
+function renderLifeGoals() {
+    const container = document.getElementById('lifeGoalsList');
+    if (!container) return;
+    
+    const goals = appData.goals.lifeGoals;
+    
+    if (goals.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-text">לא הוגדרו יעדי חיים</div></div>';
+        return;
+    }
+    
+    let html = '<div style="display: grid; gap: 12px;">';
+    goals.forEach((goal, index) => {
+        const yearsUntil = goal.year - new Date().getFullYear();
+        html += `
+            <div class="item-card" style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 1;">
+                    <div style="font-weight: bold; font-size: 1.1em;">${goal.name}</div>
+                    <div style="font-size: 0.9em; color: #666;">
+                        ${formatCurrency(goal.amount)} ב-${goal.year} (בעוד ${yearsUntil} שנים)
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-danger" onclick="removeLifeGoal(${index})">
+                    🗑️ מחק
+                </button>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    container.innerHTML = html;
+}
+
+function saveGoals() {
+    const goals = appData.goals;
+    
+    // Retirement
+    goals.retirement.userAge = parseInt(document.getElementById('goalRetirementAgeUser').value) || null;
+    goals.retirement.spouseAge = parseInt(document.getElementById('goalRetirementAgeSpouse').value) || null;
+    goals.retirement.monthlyPension = parseFloat(document.getElementById('goalMonthlyPension').value) || null;
+    goals.retirement.isRealValue = document.getElementById('goalPensionIsReal').checked;
+    
+    // Equity
+    goals.equity.targetAmount = parseFloat(document.getElementById('goalEquityAmount').value) || null;
+    goals.equity.targetYear = parseInt(document.getElementById('goalEquityYear').value) || null;
+    goals.equity.isRealValue = document.getElementById('goalEquityIsReal').checked;
+    
+    saveData();
+    alert('✅ היעדים נשמרו בהצלחה!');
+}
+
+// Update switchPanel to load goals
+const originalSwitchPanel2 = switchPanel;
+switchPanel = function(panelName) {
+    originalSwitchPanel2(panelName);
+    if (panelName === 'goals') {
+        loadGoals();
     }
 };
 
