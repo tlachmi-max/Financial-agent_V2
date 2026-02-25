@@ -1340,6 +1340,7 @@ function renderSummary() {
     
     // Render goal progress
     renderGoalProgress();
+    renderRecommendations();
 }
 
 // ==========================================
@@ -3538,7 +3539,10 @@ switchPanel = function(panelName) {
     }
     if (panelName === 'summary') {
         // Render goal progress when switching to summary
-        setTimeout(() => renderGoalProgress(), 100);
+        setTimeout(() => {
+            renderGoalProgress();
+            renderRecommendations();
+        }, 100);
     }
 };
 
@@ -3892,5 +3896,210 @@ function syncLifeGoalsToRoadmap() {
     });
     
     saveData();
+}
+
+
+// ==========================================
+// RECOMMENDATIONS ENGINE
+// ==========================================
+
+function generateRecommendations(analysis) {
+    if (!analysis) return [];
+    
+    const recommendations = [];
+    const profile = appData.profile;
+    const plan = getCurrentPlan();
+    
+    // 1. Pension recommendations
+    if (analysis.pension && analysis.pension.gap > 0) {
+        const gap = analysis.pension.gap;
+        const yearsUntil = analysis.pension.yearsUntil;
+        
+        if (yearsUntil > 0) {
+            // Calculate monthly deposit needed
+            const RETURN_RATE = 0.05; // 5% assumed
+            const monthlyRate = RETURN_RATE / 12;
+            const months = yearsUntil * 12;
+            
+            // Future value needed for monthly pension gap
+            const pensionMultiplier = 240; // ~20 years of pension
+            const futureValueNeeded = gap * pensionMultiplier;
+            
+            // PMT calculation: FV = PMT * ((1+r)^n - 1) / r
+            const monthlyNeeded = futureValueNeeded / (((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate));
+            
+            if (monthlyNeeded > 0 && monthlyNeeded < 50000) {
+                recommendations.push({
+                    type: 'pension',
+                    icon: '💰',
+                    title: 'הגדל הפקדה לפנסיה',
+                    message: `כדי להגיע ליעד הקצבה, הפקד ${formatCurrency(Math.round(monthlyNeeded / 100) * 100)} נוספים לחודש`,
+                    priority: 'high'
+                });
+            } else if (analysis.pension.percentage < 70) {
+                recommendations.push({
+                    type: 'pension',
+                    icon: '⚠️',
+                    title: 'יעד קצבה לא ריאלי',
+                    message: `הפער גדול מדי. שקול להקטין את יעד הקצבה או לדחות את גיל הפרישה`,
+                    priority: 'high'
+                });
+            }
+        }
+    }
+    
+    // 2. Equity recommendations
+    if (analysis.equity && analysis.equity.gap > 0) {
+        const gap = analysis.equity.gap;
+        const yearsUntil = analysis.equity.yearsUntil;
+        
+        if (yearsUntil > 0) {
+            // Current monthly deposits in non-pension
+            const currentMonthly = plan.investments
+                .filter(inv => inv.include && inv.type !== 'פנסיה')
+                .reduce((sum, inv) => sum + (inv.monthly || 0), 0);
+            
+            // Calculate needed return rate
+            const currentEquity = plan.investments
+                .filter(inv => inv.include && inv.type !== 'פנסיה')
+                .reduce((sum, inv) => sum + inv.amount, 0);
+            
+            const CURRENT_RETURN = 0.06; // 6% assumed
+            const monthlyRate = CURRENT_RETURN / 12;
+            const months = yearsUntil * 12;
+            
+            // Calculate monthly deposit needed
+            const monthlyNeeded = gap / (((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate));
+            
+            if (monthlyNeeded > 0 && monthlyNeeded < 100000) {
+                recommendations.push({
+                    type: 'equity',
+                    icon: '💎',
+                    title: 'הגדל הפקדה להון עצמי',
+                    message: `כדי להגיע ליעד ההון, הפקד ${formatCurrency(Math.round(monthlyNeeded / 100) * 100)} נוספים לחודש`,
+                    priority: 'high'
+                });
+            } else if (analysis.equity.percentage < 70) {
+                recommendations.push({
+                    type: 'equity',
+                    icon: '⚠️',
+                    title: 'יעד הון לא ריאלי',
+                    message: `הפער גדול מדי. שקול להקטין את יעד ההון או לדחות את שנת היעד`,
+                    priority: 'high'
+                });
+            }
+            
+            // Return rate recommendation
+            const avgReturn = calculateAvgReturn(plan);
+            if (avgReturn < 6 && analysis.equity.percentage < 90) {
+                recommendations.push({
+                    type: 'return',
+                    icon: '📈',
+                    title: 'שקול להגדיל תשואה',
+                    message: `התשואה הממוצעת שלך ${avgReturn.toFixed(1)}%. שקול להגדיל חשיפה למניות להשגת תשואה גבוהה יותר`,
+                    priority: 'medium'
+                });
+            }
+        }
+    }
+    
+    // 3. Life goals recommendations
+    if (analysis.lifeGoals && analysis.lifeGoals.length > 0) {
+        const urgentGoals = analysis.lifeGoals.filter(lg => lg.yearsUntil <= 5 && lg.percentage < 100);
+        
+        if (urgentGoals.length > 0) {
+            urgentGoals.forEach(lg => {
+                if (lg.gap > 0) {
+                    const monthlyNeeded = lg.gap / (lg.yearsUntil * 12);
+                    if (monthlyNeeded < 50000) {
+                        recommendations.push({
+                            type: 'lifegoal',
+                            icon: '🎯',
+                            title: `יעד דחוף: ${lg.name}`,
+                            message: `בעוד ${lg.yearsUntil} שנים! הפקד ${formatCurrency(Math.round(monthlyNeeded / 100) * 100)} לחודש`,
+                            priority: lg.yearsUntil <= 3 ? 'high' : 'medium'
+                        });
+                    }
+                }
+            });
+        }
+    }
+    
+    // 4. General recommendations
+    if (recommendations.length === 0) {
+        recommendations.push({
+            type: 'success',
+            icon: '✅',
+            title: 'אתה בדרך הנכונה!',
+            message: 'כל היעדים שלך בטווח הישיג. המשך כך!',
+            priority: 'low'
+        });
+    }
+    
+    // Add general advice
+    recommendations.push({
+        type: 'general',
+        icon: '💡',
+        title: 'עצות כלליות',
+        message: 'בדוק דמי ניהול, פזר השקעות בין גופים, עדכן תוכנית שנתית',
+        priority: 'low'
+    });
+    
+    return recommendations;
+}
+
+function calculateAvgReturn(plan) {
+    const investments = plan.investments.filter(inv => inv.include && inv.type !== 'פנסיה');
+    if (investments.length === 0) return 0;
+    
+    const totalAmount = investments.reduce((sum, inv) => sum + inv.amount, 0);
+    if (totalAmount === 0) return 0;
+    
+    const weightedReturn = investments.reduce((sum, inv) => 
+        sum + (inv.amount * inv.returnRate), 0
+    );
+    
+    return weightedReturn / totalAmount;
+}
+
+function renderRecommendations() {
+    const container = document.getElementById('recommendations');
+    if (!container) return;
+    
+    const analysis = analyzeGoals();
+    const recommendations = generateRecommendations(analysis);
+    
+    if (recommendations.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    let html = '<div class="card" style="margin-top: 20px;">';
+    html += '<h3 style="margin: 0 0 16px 0;">💡 המלצות אישיות</h3>';
+    html += '<div style="display: grid; gap: 12px;">';
+    
+    recommendations.forEach(rec => {
+        const bgColor = rec.priority === 'high' ? 'rgba(239, 68, 68, 0.1)' : 
+                       rec.priority === 'medium' ? 'rgba(245, 158, 11, 0.1)' : 
+                       'rgba(16, 185, 129, 0.1)';
+        const borderColor = rec.priority === 'high' ? '#ef4444' : 
+                           rec.priority === 'medium' ? '#f59e0b' : 
+                           '#10b981';
+        
+        html += `
+            <div style="padding: 16px; background: ${bgColor}; border-right: 4px solid ${borderColor}; border-radius: 8px;">
+                <div style="display: flex; align-items: start; gap: 12px;">
+                    <div style="font-size: 1.5em;">${rec.icon}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold; margin-bottom: 4px;">${rec.title}</div>
+                        <div style="font-size: 0.95em; color: #666;">${rec.message}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div></div>';
+    container.innerHTML = html;
 }
 

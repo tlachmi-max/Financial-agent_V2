@@ -450,7 +450,7 @@
                 <div class="card mb-4">
                     <div class="card-title">💰 יעדי פנסיה</div>
                     <div style="margin-top: 16px;">
-                        <div class="form-grid">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                             <div class="form-group">
                                 <label class="form-label">גיל פרישה מתוכנן (משתמש)</label>
                                 <input type="number" class="form-input" id="goalRetirementAgeUser" min="50" max="80" placeholder="67">
@@ -473,7 +473,7 @@
                 
                 <!-- Equity Goal -->
                 <div class="card mb-4">
-                    <div class="card-title">💎 יעד הון עצמאי בפרישה</div>
+                    <div class="card-title">💎 יעד הון עצמי בפרישה</div>
                     <div style="margin-top: 16px;">
                         <div class="form-grid">
                             <div class="form-group">
@@ -649,13 +649,10 @@
                 
                 <!-- Total Today Card (Equity Only) -->
                 <div class="stat-card blue" style="margin-bottom: 24px; border: 3px solid #3b82f6;">
-                    <div class="stat-label" style="font-size: 1.2em; font-weight: bold;">💰 הון עצמאי היום *</div>
+                    <div class="stat-label" style="font-size: 1.2em; font-weight: bold;">💰 הון עצמי היום *</div>
                     <div class="stat-value" id="sumToday" style="font-size: 2.5em; color: #3b82f6;">₪0</div>
                     <div class="stat-detail">הסכום הנוכחי בכל המסלולים</div>
                 </div>
-                
-                <!-- Goal Progress -->
-                <div id="goalProgress"></div>
                 
                 <div class="flex justify-between items-center mb-3" style="flex-wrap: wrap; gap: 12px;">
                     <h2>תחזית עתידית</h2>
@@ -709,6 +706,10 @@
                     <div class="card-title mb-3">פירוט מסלולי השקעה</div>
                     <div id="summaryBreakdown" class="items-list"></div>
                 </div>
+                
+                <!-- Goal Progress -->
+                <div id="goalProgress"></div>
+                <div id="recommendations"></div>
             </div>
 
             <!-- Panel: Pension -->
