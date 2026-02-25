@@ -3499,15 +3499,52 @@ function renderLifeGoals() {
                         ${formatCurrency(goal.amount)} ב-${goal.year} (בעוד ${yearsUntil} שנים)
                     </div>
                 </div>
-                <button class="btn btn-sm btn-danger" onclick="removeLifeGoal(${index})">
-                    🗑️ מחק
-                </button>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-sm btn-primary" onclick="editLifeGoal(${index})">
+                        ✏️ ערוך
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="removeLifeGoal(${index})">
+                        🗑️ מחק
+                    </button>
+                </div>
             </div>
         `;
     });
     html += '</div>';
     
     container.innerHTML = html;
+}
+
+function editLifeGoal(index) {
+    const goal = appData.goals.lifeGoals[index];
+    
+    const name = prompt('שם היעד:', goal.name);
+    if (!name || name.trim() === '') return;
+    
+    const amountStr = prompt('סכום (₪):', goal.amount);
+    const amount = parseFloat(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+        alert('סכום לא תקין');
+        return;
+    }
+    
+    const yearStr = prompt('שנת יעד:', goal.year);
+    const year = parseInt(yearStr);
+    const currentYear = new Date().getFullYear();
+    if (isNaN(year) || year < currentYear || year > 2100) {
+        alert('שנה לא תקינה');
+        return;
+    }
+    
+    // Update goal
+    goal.name = name.trim();
+    goal.amount = amount;
+    goal.year = year;
+    
+    saveData();
+    syncLifeGoalsToRoadmap();
+    renderLifeGoals();
+    showSaveNotification('✅ היעד עודכן בהצלחה!');
 }
 
 function saveGoals() {
@@ -4022,11 +4059,13 @@ function generateRecommendations(analysis) {
                     priority: 'high'
                 });
             } else if (analysis.equity.percentage < 70) {
+                // Even if unrealistic, give a practical number
+                const requiredMonthly = Math.round(additionalMonthly / 100) * 100;
                 recommendations.push({
                     type: 'equity',
                     icon: '⚠️',
-                    title: 'יעד הון לא ריאלי',
-                    message: `הפער גדול מדי. שקול להקטין את יעד ההון או לדחות את שנת היעד`,
+                    title: 'יעד הון דורש מאמץ משמעותי',
+                    message: `כדי להגיע ליעד תצטרך להפקיד ${formatCurrency(requiredMonthly)} נוספים לחודש. שקול להקטין יעד או לדחות שנת יעד`,
                     priority: 'high'
                 });
             }
@@ -4242,6 +4281,20 @@ function generateAnalysisReport() {
 function generateAnalysisHTML(yearlyData, goals, profile) {
     const analysis = analyzeGoals();
     const recommendations = generateRecommendations(analysis);
+    const plan = getCurrentPlan();
+    
+    // Calculate current equity directly (safety fallback)
+    const currentEquityDirect = plan.investments
+        .filter(inv => inv.type !== 'פנסיה')
+        .reduce((sum, inv) => sum + (inv.amount || 0), 0);
+    
+    // Use yearlyData[0] if exists, otherwise use direct calculation
+    const currentEquityDisplay = (yearlyData && yearlyData.length > 0 && yearlyData[0].equityBefore) 
+        ? yearlyData[0].equityBefore 
+        : currentEquityDirect;
+    
+    console.log('HTML Generation - yearlyData[0]:', yearlyData[0]);
+    console.log('HTML Generation - currentEquityDisplay:', currentEquityDisplay);
     
     // Find max value for chart scaling
     const maxValue = Math.max(...yearlyData.map(d => d.equityBefore));
@@ -4407,7 +4460,7 @@ function generateAnalysisHTML(yearlyData, goals, profile) {
             <div class="summary-grid">
                 <div class="summary-card">
                     <div class="summary-card-title">הון עצמי היום</div>
-                    <div class="summary-card-value">${formatCurrency(yearlyData[0].equityBefore)}</div>
+                    <div class="summary-card-value">${formatCurrency(currentEquityDisplay)}</div>
                 </div>
                 ${goals.equity.targetYear ? `
                 <div class="summary-card">
