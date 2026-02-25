@@ -1,5 +1,5 @@
 // Service Worker for Financial Planner PWA
-const CACHE_NAME = 'financial-planner-v28';  // ← v28 - Visual Analysis Report (Phase 2.4)!
+const CACHE_NAME = 'financial-planner-v28.1';  // ← v28.1 - Fix report button!
 const ASSETS_TO_CACHE = [
     '/index.html',
     '/style.css',

@@ -4131,13 +4131,19 @@ function generateAnalysisReport() {
     for (let year = currentYear; year <= maxYear; year++) {
         const yearsFromNow = year - currentYear;
         
-        // Calculate equity before withdrawals
-        const projection = calculateProjection(
-            plan.investments.filter(inv => inv.type !== 'פנסיה'),
-            yearsFromNow
+        // Calculate equity before this year's withdrawals
+        // We need to calculate with withdrawals UP TO this year
+        const withdrawalsUpToThisYear = plan.withdrawals.filter(w => 
+            w.active !== false && w.year < year
         );
         
-        // Find withdrawals in this year
+        const projection = calculateProjectionWithWithdrawals(
+            plan.investments.filter(inv => inv.type !== 'פנסיה'),
+            yearsFromNow,
+            withdrawalsUpToThisYear
+        );
+        
+        // Find withdrawals in this specific year
         const withdrawalsThisYear = plan.withdrawals.filter(w => 
             w.active !== false && w.year === year
         );
