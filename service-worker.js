@@ -1,5 +1,5 @@
 // Service Worker for Financial Planner PWA
-const CACHE_NAME = 'financial-planner-v30.5';  // ← v30.5 - Fix 0₪ recommendations + debug alert!
+const CACHE_NAME = 'financial-planner-v30.6';  // ← v30.6 - Remove renderDreams bug!
 const ASSETS_TO_CACHE = [
     '/index.html',
     '/style.css',

@@ -973,7 +973,6 @@ function saveDream(event) {
     plan.dreams.push(dream);
     document.getElementById('dreamForm').reset();
     saveData();
-    renderDreams();
 }
 
 function deleteDream(index) {
@@ -981,7 +980,6 @@ function deleteDream(index) {
     const plan = getCurrentPlan();
     plan.dreams.splice(index, 1);
     saveData();
-    renderDreams();
 }
 
 function calculateDreamGap(dream) {
@@ -1036,86 +1034,6 @@ function calculateDreamGap(dream) {
         };
     }
 }
-
-function renderDreams() {
-    const plan = getCurrentPlan();
-    const container = document.getElementById('dreamsList');
-    document.getElementById('dreamCount').textContent = plan.dreams.length;
-    
-    // Populate sources select
-    const sourcesSelect = document.getElementById('dreamSources');
-    if (sourcesSelect) {
-        sourcesSelect.innerHTML = '<option value="">לא מוגדר</option>' + 
-            plan.investments.map((inv, i) => 
-                `<option value="${i}">${inv.name}</option>`
-            ).join('');
-    }
-    
-    if (plan.dreams.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-icon">🎯</div>
-                <div class="empty-title">אין חלומות</div>
-                <div class="empty-text">הגדר את החלום הפיננסי הראשון שלך</div>
-            </div>
-        `;
-        return;
-    }
-    
-    container.innerHTML = plan.dreams.map((dream, i) => {
-        let sourceNames = [];
-        let gapHTML = '';
-        
-        // Handle both old format (sourceIndex) and new format (sourceIndices)
-        const sourceIndices = dream.sourceIndices || 
-                             (dream.sourceIndex !== null && dream.sourceIndex !== undefined ? [dream.sourceIndex] : []);
-        
-        if (sourceIndices.length > 0) {
-            sourceNames = sourceIndices
-                .filter(idx => plan.investments[idx])
-                .map(idx => plan.investments[idx].name);
-            
-            const gapData = calculateDreamGap(dream);
-            if (gapData) {
-                const alertClass = gapData.status === 'success' ? 'alert-success' : 
-                                   gapData.status === 'warning' ? 'alert-warning' : 'alert-info';
-                gapHTML = `<div class="alert ${alertClass}" style="margin-top: 12px; padding: 12px;">
-                    ${gapData.message}
-                </div>`;
-            }
-        }
-        
-        const sourceText = sourceNames.length > 0 ? sourceNames.join(', ') : 'לא מוגדר';
-        const costPerSource = sourceNames.length > 0 ? dream.cost / sourceNames.length : dream.cost;
-        
-        return `
-            <div class="item">
-                <div class="item-header">
-                    <div>
-                        <div class="item-title">${dream.name}</div>
-                        <div class="item-subtitle">שנת יעד: ${dream.year}</div>
-                    </div>
-                    <div class="item-actions">
-                        <button class="btn btn-danger btn-sm" onclick="deleteDream(${i})">
-                            <span>🗑️</span>
-                            <span>מחק</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="item-details">
-                    <div class="item-detail"><span>💰</span><span>עלות כוללת: ${formatCurrency(dream.cost)}</span></div>
-                    ${sourceNames.length > 0 ? `<div class="item-detail"><span>📊</span><span>לכל מקור: ${formatCurrency(costPerSource)}</span></div>` : ''}
-                    <div class="item-detail"><span>💫</span><span>מקורות (${sourceNames.length}): ${sourceText}</span></div>
-                </div>
-                ${gapHTML}
-            </div>
-        `;
-    }).join('');
-}
-
-// ==========================================
-// PROJECTIONS
-// ==========================================
 
 function renderProjections() {
     const plan = getCurrentPlan();
@@ -1874,7 +1792,6 @@ function importExcel(event) {
 
 function render() {
     renderInvestments();
-    renderDreams();
     updateDreamSources();
 }
 
