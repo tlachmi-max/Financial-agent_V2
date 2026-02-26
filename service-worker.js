@@ -1,5 +1,5 @@
 // Service Worker for Financial Planner PWA
-const CACHE_NAME = 'financial-planner-v34';  // ← v34 - Fix PWA compatibility!
+const CACHE_NAME = 'financial-planner-v35';  // ← v35 - Manifest fix + mobile ready!
 const ASSETS_TO_CACHE = [
     '/index.html',
     '/style.css',
