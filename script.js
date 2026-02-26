@@ -1217,6 +1217,32 @@ function renderSummary() {
     document.getElementById('sumFees').textContent = formatCurrency(totalFees);
     document.getElementById('sumTax').textContent = formatCurrency(totalTax);
     
+    // Calculate weighted averages for non-pension investments
+    const activeInvestments = plan.investments.filter(inv => inv.include && inv.type !== 'פנסיה');
+    const totalAmount = activeInvestments.reduce((sum, inv) => sum + (inv.amount || 0), 0);
+    
+    if (totalAmount > 0) {
+        // Weighted average fees
+        const avgFeeAnnual = activeInvestments.reduce((sum, inv) => 
+            sum + ((inv.amount || 0) * (inv.feeAnnual || 0)), 0) / totalAmount;
+        const avgFeeDeposit = activeInvestments.reduce((sum, inv) => 
+            sum + ((inv.amount || 0) * (inv.feeDeposit || 0)), 0) / totalAmount;
+        
+        // Weighted average return
+        const avgReturn = activeInvestments.reduce((sum, inv) => 
+            sum + ((inv.amount || 0) * (inv.returnRate || 0)), 0) / totalAmount;
+        
+        document.getElementById('sumAvgFees').textContent = avgFeeAnnual.toFixed(2) + '%';
+        document.getElementById('sumAvgFeeAnnual').textContent = avgFeeAnnual.toFixed(2) + '%';
+        document.getElementById('sumAvgFeeDeposit').textContent = avgFeeDeposit.toFixed(2) + '%';
+        document.getElementById('sumAvgReturn').textContent = avgReturn.toFixed(2) + '%';
+    } else {
+        document.getElementById('sumAvgFees').textContent = '-';
+        document.getElementById('sumAvgFeeAnnual').textContent = '-';
+        document.getElementById('sumAvgFeeDeposit').textContent = '-';
+        document.getElementById('sumAvgReturn').textContent = '-';
+    }
+    
     // Show years with withdrawal note if applicable
     const yearsLabel = document.getElementById('sumYearsLabel');
     const activeWithdrawals = plan.withdrawals?.filter(w => w.active !== false).length || 0;

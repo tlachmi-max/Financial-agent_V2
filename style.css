@@ -428,6 +428,14 @@ body {
     background: linear-gradient(135deg, var(--warning) 0%, #b87333 100%);
 }
 
+.stat-card.purple {
+    background: linear-gradient(135deg, #9333ea 0%, #6b21a8 100%);
+}
+
+.stat-card.teal {
+    background: linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+}
+
 .stat-label {
     font-size: 0.95em;
     opacity: 0.95;

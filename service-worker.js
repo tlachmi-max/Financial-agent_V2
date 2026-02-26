@@ -1,5 +1,5 @@
 // Service Worker for Financial Planner PWA
-const CACHE_NAME = 'financial-planner-v32';  // ← v32 - Fixed report + charts + fees!
+const CACHE_NAME = 'financial-planner-v33';  // ← v33 - Add avg fees & return to summary!
 const ASSETS_TO_CACHE = [
     '/index.html',
     '/style.css',
