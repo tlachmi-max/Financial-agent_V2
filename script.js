@@ -3050,11 +3050,17 @@ function renamePlan() {
 
 function generateReport() {
     const plan = getCurrentPlan();
+    
+    if (!plan || !plan.investments) {
+        alert('שגיאה: לא נמצאה תוכנית או השקעות');
+        return;
+    }
+    
     const years = parseInt(document.getElementById('sumYears')?.value) || 20;
     const currentYear = new Date().getFullYear();
     
     // Calculate projection
-    const projection = calculateProjectionWithWithdrawals(plan.investments, years, plan.withdrawals);
+    const projection = calculateProjectionWithWithdrawals(plan.investments, years, plan.withdrawals || []);
     
     // Generate HTML report
     let html = `
@@ -4111,6 +4117,16 @@ function generateAnalysisReport() {
     const profile = appData.profile;
     const goals = appData.goals;
     
+    if (!plan) {
+        alert('שגיאה: לא נמצאה תוכנית פעילה');
+        return;
+    }
+    
+    if (!plan.investments) {
+        alert('שגיאה: אין השקעות בתוכנית');
+        return;
+    }
+    
     if (!profile.user.age) {
         alert('אנא השלם את הפרופיל תחילה');
         return;
@@ -4208,12 +4224,13 @@ function generateAnalysisHTML(yearlyData, goals, profile) {
         .filter(inv => inv.type !== 'פנסיה')
         .reduce((sum, inv) => sum + (inv.amount || 0), 0);
     
-    // Use yearlyData[0] if exists, otherwise use direct calculation
-    const currentEquityDisplay = (yearlyData && yearlyData.length > 0 && yearlyData[0].equityBefore) 
+    // Use yearlyData[0] ONLY if it's actually valid (not 0)
+    const currentEquityDisplay = (yearlyData && yearlyData.length > 0 && yearlyData[0].equityBefore > 0) 
         ? yearlyData[0].equityBefore 
         : currentEquityDirect;
     
     console.log('HTML Generation - yearlyData[0]:', yearlyData[0]);
+    console.log('HTML Generation - currentEquityDirect:', currentEquityDirect);
     console.log('HTML Generation - currentEquityDisplay:', currentEquityDisplay);
     
     // Find max value for chart scaling
