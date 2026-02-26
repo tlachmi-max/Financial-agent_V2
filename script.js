@@ -3080,13 +3080,22 @@ function renamePlan() {
 }
 
 
-function generateReport() {
     const plan = getCurrentPlan();
-    
-    if (!plan || !plan.investments) {
-        alert('שגיאה: לא נמצאה תוכנית או השקעות');
+    const container = document.getElementById('report-container');
+
+    if (!plan || !plan.investments || plan.investments.length === 0) {
+        if (container) {
+            container.innerHTML = `
+                <div style="padding: 20px; text-align: center; background: #f8f9fa; border-radius: 10px; margin: 20px; border: 1px solid #dee2e6;">
+                    <h3 style="color: #0d6efd;">ברוכים הבאים לגרסת ה-V2!</h3>
+                    <p>כדי להפיק דו"ח אסטרטגי, יש להזין תחילה נכסים ויעדים בטאבים המתאימים.</p>
+                </div>`;
+        } else {
+            alert('לא נמצאה תוכנית או השקעות. נא להזין נתונים תחילה.');
+        }
         return;
     }
+
     
     const years = parseInt(document.getElementById('sumYears') && document.getElementById('sumYears').value) || 20;
     const currentYear = new Date().getFullYear();
