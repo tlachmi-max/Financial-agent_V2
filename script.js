@@ -1708,7 +1708,27 @@ function createNewPlan() {
         id: Date.now().toString(),
         name,
         investments: [],
-        dreams: [],
+        withdrawals: [],
+        profile: {
+            maritalStatus: 'married',
+            user: { name: '', age: null, gender: 'male' },
+            spouse: { name: '', age: null, gender: 'female' },
+            children: []
+        },
+        goals: {
+            retirement: {
+                userAge: null,
+                spouseAge: null,
+                monthlyPension: null,
+                isRealValue: true
+            },
+            equity: {
+                targetAmount: null,
+                targetYear: null,
+                isRealValue: true
+            },
+            lifeGoals: []
+        },
         createdAt: new Date().toISOString()
     };
     
