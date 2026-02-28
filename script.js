@@ -611,18 +611,33 @@ function updateTaxRate() {
 // UI NAVIGATION
 // ==========================================
 
-function switchPanel(panelName) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+function switchPanel(panelId) {
+    console.log('Navigating to:', panelId);
+
+    // 1. הסרת מחלקת active מכל הכפתורים והפאנלים
+    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+
+    // 2. הוספת active לכפתור ולפאנל הנבחר
+    const activeBtn = document.querySelector(`.nav-item[onclick*="${panelId}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    const activePanel = document.getElementById(panelId);
+    if (activePanel) {
+        activePanel.classList.add('active');
+    }
+
+    // 3. טעינת נתונים ספציפית לכל טאב (חשוב לשמירת יעדים ופרופיל)
+    if (panelId === 'profile') renderChildren();
+    if (panelId === 'goals') renderLifeGoals();
+    if (panelId === 'summary') updateSummary();
+    if (panelId === 'pension') {
+        if (typeof renderPensionTab === 'function') renderPensionTab();
+    }
     
-    document.getElementById(panelName).classList.add('active');
-    document.querySelector(`[data-panel="${panelName}"]`).classList.add('active');
-    
-    if (panelName === 'projections') renderProjections();
-    if (panelName === 'summary') renderSummary();
-    if (panelName === 'charts') renderCharts();
-    if (panelName === 'roadmap') renderWithdrawals();
-    if (panelName === 'pension') renderPensionTab();
+    // סגירת תפריט מובייל
+    const navLinks = document.getElementById('navLinks');
+    if (navLinks) navLinks.classList.remove('active');
 }
 
 // ==========================================
@@ -3657,16 +3672,9 @@ function saveProfile() {
     
     saveData();
     showSaveNotification('✅ הפרופיל נשמר בהצלחה!');
-}
-
-// Update switchPanel to load profile
-const originalSwitchPanel = switchPanel;
-switchPanel = function(panelName) {
-    originalSwitchPanel(panelName);
-    if (panelName === 'profile') {
-        loadProfile();
-    }
 };
+
+
 
 
 // ==========================================
