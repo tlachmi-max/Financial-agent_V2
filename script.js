@@ -221,7 +221,28 @@ function createDefaultPlan() {
         id: Date.now().toString(),
         name: 'תוכנית ראשית',
         investments: [],
-        dreams: [],
+withdrawals: [],
+profile: {
+    maritalStatus: 'married',
+    user: { name: '', age: null, gender: 'male' },
+    spouse: { name: '', age: null, gender: 'female' },
+    children: []
+},
+goals: {
+    retirement: {
+        userAge: null,
+        spouseAge: null,
+        monthlyPension: null,
+        isRealValue: true
+    },
+    equity: {
+        targetAmount: null,
+        targetYear: null,
+        isRealValue: true
+    },
+    lifeGoals: []
+},
+
         createdAt: new Date().toISOString()
     };
     appData.plans.push(plan);
@@ -230,7 +251,41 @@ function createDefaultPlan() {
 }
 
 function getCurrentPlan() {
-    return appData.plans.find(p => p.id === appData.currentPlanId) || appData.plans[0];
+    const plan = appData.plans.find(p => p.id === appData.currentPlanId) || appData.plans[0];
+    
+    // Ensure plan has profile and goals
+    if (!plan.profile) {
+        plan.profile = {
+            maritalStatus: 'married',
+            user: { name: '', age: null, gender: 'male' },
+            spouse: { name: '', age: null, gender: 'female' },
+            children: []
+        };
+    }
+    if (!plan.goals) {
+        plan.goals = {
+            retirement: {
+                userAge: null,
+                spouseAge: null,
+                monthlyPension: null,
+                isRealValue: true
+            },
+            equity: {
+                targetAmount: null,
+                targetYear: null,
+                isRealValue: true
+            },
+            lifeGoals: []
+        };
+    }
+    if (!plan.withdrawals) {
+        plan.withdrawals = [];
+    }
+    
+    return plan;
+}
+
+
 }
 
 // ==========================================
@@ -1624,7 +1679,7 @@ function showPlanManager() {
             <div class="item-header">
                 <div>
                     <div class="item-title">${p.name}</div>
-                    <div class="item-subtitle">${p.investments.length} מסלולים</div>
+                   <div class="item-subtitle">${p.investments.length} מסלולים</div>
                 </div>
                 <div class="item-actions">
                     <button class="btn btn-primary btn-sm" onclick="selectPlan('${p.id}')">בחר</button>
@@ -1649,7 +1704,29 @@ function createNewPlan() {
         id: Date.now().toString(),
         name,
         investments: [],
-        dreams: [],
+        withdrawals: [],
+profile: {
+    maritalStatus: 'married',
+    user: { name: '', age: null, gender: 'male' },
+    spouse: { name: '', age: null, gender: 'female' },
+    children: []
+},
+goals: {
+    retirement: {
+        userAge: null,
+        spouseAge: null,
+        monthlyPension: null,
+        isRealValue: true
+    },
+    equity: {
+        targetAmount: null,
+        targetYear: null,
+        isRealValue: true
+    },
+    lifeGoals: []
+},
+
+
         createdAt: new Date().toISOString()
     };
     
@@ -1806,7 +1883,9 @@ function exportToExcel() {
 
 function exportExcel() {
     const plan = getCurrentPlan();
-    const profile = appData.profile;
+const profile = plan.profile;
+const goals = plan.goals;
+``
     const goals = appData.goals;
     
     const wb = XLSX.utils.book_new();
