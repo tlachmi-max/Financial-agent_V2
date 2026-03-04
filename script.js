@@ -632,7 +632,7 @@ function switchPanel(panelId) {
         targetBtn.classList.add('active');
     }
 
-    // 4. הרצת עדכונים ספציפיים לכל טאב
+   // 4. הרצת עדכונים ספציפיים לכל טאב
     if (panelId === 'profile') renderChildren();
     if (panelId === 'goals') renderLifeGoals();
     if (panelId === 'summary') updateSummary();
