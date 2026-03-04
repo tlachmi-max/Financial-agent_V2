@@ -1764,42 +1764,13 @@ function exportToPDF() {
 
 function exportToExcel() {
     const plan = getCurrentPlan();
-    const years = parseInt(document.getElementById('sumYears').value) || 20;
+    const profile = plan.profile;
+    const goals = plan.goals;
     
     try {
-        // Calculate analytics
-        const byType = {}, byHouse = {}, bySubTrack = {}, byRisk = {
-            'סיכון נמוך': 0, 'סיכון בינוני': 0, 'סיכון גבוה': 0
-        };
-        let total = 0;
-        
-        plan.investments.forEach(inv => {
-            if (!inv.include) return;
-            const value = calculateFV(inv.amount, inv.monthly, inv.returnRate, years,
-                                      inv.feeDeposit || 0, inv.feeAnnual || 0, inv.subTracks);
-            
-            byType[inv.type] = (byType[inv.type] || 0) + value;
-            byHouse[inv.house] = (byHouse[inv.house] || 0) + value;
-            
-            if (inv.subTracks && inv.subTracks.length > 0) {
-                inv.subTracks.forEach(st => {
-                    const subTrackValue = value * (st.percent / 100);
-                    bySubTrack[st.type] = (bySubTrack[st.type] || 0) + subTrackValue;
-                    
-                    const risk = classifyRisk(st.type);
-                    if (risk === 'low') byRisk['סיכון נמוך'] += subTrackValue;
-                    else if (risk === 'medium') byRisk['סיכון בינוני'] += subTrackValue;
-                    else if (risk === 'high') byRisk['סיכון גבוה'] += subTrackValue;
-                    // Skip undefined
-                });
-            }
-            
-            total += value;
-        });
-        
         const wb = XLSX.utils.book_new();
         
-        // Sheet 1: Investments with subTracks
+        // Sheet 1: Investments
         const invData = plan.investments.map(inv => ({
             'שם': inv.name,
             'סוג': inv.type,
@@ -1807,66 +1778,83 @@ function exportToExcel() {
             'סכום נוכחי': inv.amount,
             'הפקדה חודשית': inv.monthly,
             'תשואה %': inv.returnRate,
-            'מס %': inv.tax,
-            'דמי ניהול הפקדה %': inv.feeDeposit,
-            'דמי ניהול צבירה %': inv.feeAnnual,
-            'תתי-מסלולים': inv.subTracks ? JSON.stringify(inv.subTracks) : '',
-            'כלול': inv.include ? 'כן' : 'לא'
+            'מס %': inv.tax || 0,
+            'דמי ניהול הפקדה %': inv.feeDeposit || 0,
+            'דמי ניהול צבירה %': inv.feeAnnual || 0,
+            'כלול': inv.include ? 'כן' : 'לא',
+            'בן/בת זוג': inv.spouse || '',
+            'גיל': inv.age || '',
+            'מגדר': inv.gender || '',
+            'תתי-מסלולים': inv.subTracks ? JSON.stringify(inv.subTracks) : ''
         }));
         const ws1 = XLSX.utils.json_to_sheet(invData);
         XLSX.utils.book_append_sheet(wb, ws1, 'מסלולי השקעה');
         
-        // Sheet 2: Withdrawals (Roadmap)
-        if (plan.withdrawals && plan.withdrawals.length > 0) {
-            const withdrawalData = plan.withdrawals.map(w => ({
-                'שנה': w.year,
-                'מטרה': w.goal || '',
-                'סכום': w.amount,
-                'פעיל': w.active === false ? 'לא' : 'כן'
+        // Sheet 2: Profile
+        const profileData = [
+            { 'שדה': 'שם משתמש', 'ערך': profile.user.name || '' },
+            { 'שדה': 'גיל משתמש', 'ערך': profile.user.age || '' },
+            { 'שדה': 'שם בן/בת זוג', 'ערך': profile.spouse.name || '' },
+            { 'שדה': 'גיל בן/בת זוג', 'ערך': profile.spouse.age || '' },
+            { 'שדה': 'מספר ילדים', 'ערך': profile.children.length }
+        ];
+        profile.children.forEach((child, i) => {
+            profileData.push({ 'שדה': `ילד ${i+1} - שם`, 'ערך': child.name });
+            profileData.push({ 'שדה': `ילד ${i+1} - גיל`, 'ערך': child.age });
+        });
+        const ws2 = XLSX.utils.json_to_sheet(profileData);
+        XLSX.utils.book_append_sheet(wb, ws2, 'פרופיל');
+        
+        // Sheet 3: Goals - Retirement
+        const retirementData = [{
+            'סוג יעד': 'פרישה',
+            'גיל משתמש': goals.retirement.userAge || '',
+            'גיל בן/בת זוג': goals.retirement.spouseAge || '',
+            'קצבה חודשית': goals.retirement.monthlyPension || '',
+            'ערך ריאלי': goals.retirement.isRealValue ? 'כן' : 'לא'
+        }];
+        const ws3 = XLSX.utils.json_to_sheet(retirementData);
+        XLSX.utils.book_append_sheet(wb, ws3, 'יעד פרישה');
+        
+        // Sheet 4: Goals - Equity
+        const equityData = [{
+            'סוג יעד': 'הון עצמי',
+            'סכום יעד': goals.equity.targetAmount || '',
+            'שנת יעד': goals.equity.targetYear || ''
+        }];
+        const ws4 = XLSX.utils.json_to_sheet(equityData);
+        XLSX.utils.book_append_sheet(wb, ws4, 'יעד הון');
+        
+        // Sheet 5: Life Goals
+        if (goals.lifeGoals && goals.lifeGoals.length > 0) {
+            const lifeGoalsData = goals.lifeGoals.map(g => ({
+                'שם': g.name,
+                'סכום': g.amount,
+                'שנה': g.year,
+                'ID': g.id || ''
             }));
-            const ws2 = XLSX.utils.json_to_sheet(withdrawalData);
-            XLSX.utils.book_append_sheet(wb, ws2, 'מפת דרכים');
+            const ws5 = XLSX.utils.json_to_sheet(lifeGoalsData);
+            XLSX.utils.book_append_sheet(wb, ws5, 'יעדי חיים');
         }
         
-        // Sheet 3: Analytics - By Type
-        const typeData = Object.entries(byType).map(([name, value]) => ({
-            'סוג מסלול': name,
-            'סכום': Math.round(value),
-            'אחוז מהתיק': ((value / total) * 100).toFixed(2) + '%'
-        }));
-        const ws3 = XLSX.utils.json_to_sheet(typeData);
-        XLSX.utils.book_append_sheet(wb, ws3, 'ניתוח - סוגים');
-        
-        // Sheet 4: Analytics - By House
-        const houseData = Object.entries(byHouse).map(([name, value]) => ({
-            'בית השקעות': name,
-            'סכום': Math.round(value),
-            'אחוז מהתיק': ((value / total) * 100).toFixed(2) + '%'
-        }));
-        const ws4 = XLSX.utils.json_to_sheet(houseData);
-        XLSX.utils.book_append_sheet(wb, ws4, 'ניתוח - בתי השקעות');
-        
-        // Sheet 5: Analytics - By SubTrack
-        const subTrackData = Object.entries(bySubTrack).map(([name, value]) => ({
-            'תת-מסלול': name,
-            'סכום': Math.round(value),
-            'אחוז מהתיק': ((value / total) * 100).toFixed(2) + '%'
-        }));
-        const ws5 = XLSX.utils.json_to_sheet(subTrackData);
-        XLSX.utils.book_append_sheet(wb, ws5, 'ניתוח - תתי מסלולים');
-        
-        // Sheet 6: Analytics - By Risk
-        const riskData = Object.entries(byRisk)
-            .filter(([, value]) => value > 0)
-            .map(([name, value]) => ({
-                'רמת סיכון': name,
-                'סכום': Math.round(value),
-                'אחוז מהתיק': ((value / total) * 100).toFixed(2) + '%'
+        // Sheet 6: Roadmap (Withdrawals)
+        if (plan.withdrawals && plan.withdrawals.length > 0) {
+            const withdrawalsData = plan.withdrawals.map(w => ({
+                'שנה': w.year,
+                'סכום': w.amount,
+                'מטרה': w.goal || '',
+                'מקושר ליעד ID': w.goalId || '',
+                'פעיל': w.active === false ? 'לא' : 'כן'
             }));
-        const ws6 = XLSX.utils.json_to_sheet(riskData);
-        XLSX.utils.book_append_sheet(wb, ws6, 'ניתוח - סיכונים');
+            const ws6 = XLSX.utils.json_to_sheet(withdrawalsData);
+            XLSX.utils.book_append_sheet(wb, ws6, 'מפת דרכים');
+        }
         
-        XLSX.writeFile(wb, `${plan.name}_${new Date().toISOString().split('T')[0]}.xlsx`);
+        // Generate filename with date
+        const now = new Date();
+        const filename = `${plan.name}_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}.xlsx`;
+        
+        XLSX.writeFile(wb, filename);
     } catch (e) {
         console.error('Excel export error:', e);
         alert('שגיאה בייצוא ל-Excel: ' + e.message);
@@ -2083,6 +2071,7 @@ function importExcel(event) {
             }
             
             saveData();
+            syncLifeGoalsToRoadmap();  // ← הוספתי! מחשב מחדש את המפה מהיעדים
             renderWithdrawals();
             renderInvestments();
             renderSummary();
@@ -2104,6 +2093,7 @@ function importExcel(event) {
 function render() {
     renderInvestments();
     updateDreamSources();
+    renderWithdrawals();  // ← הוספתי!
 }
 
 // ==========================================
@@ -3770,7 +3760,8 @@ function addLifeGoal() {
     getCurrentPlan().goals.lifeGoals.push(goal);
     saveData();
     syncLifeGoalsToRoadmap();
-    renderLifeGoals();  // ← הוספתי!
+    renderLifeGoals();
+    renderWithdrawals();  // ← הוספתי!
     showSaveNotification('✅ היעד נוסף ונשמר במפת דרכים!');
 }
 
@@ -3780,7 +3771,8 @@ function removeLifeGoal(index) {
     getCurrentPlan().goals.lifeGoals.splice(index, 1);
     saveData();
     syncLifeGoalsToRoadmap();
-    renderLifeGoals();  // ← הוספתי!
+    renderLifeGoals();
+    renderWithdrawals();  // ← הוספתי!
     showSaveNotification('✅ היעד נמחק מהיעדים ומהמפת דרכים');
 }
 
@@ -3850,7 +3842,8 @@ function editLifeGoal(index) {
     
     saveData();
     syncLifeGoalsToRoadmap();
-    renderLifeGoals();  // ← הוספתי!
+    renderLifeGoals();
+    renderWithdrawals();  // ← הוספתי!
     showSaveNotification('✅ היעד עודכן בהצלחה!');
 }
 
@@ -3870,6 +3863,7 @@ function saveGoals() {
     
     saveData();
     syncLifeGoalsToRoadmap();
+    renderWithdrawals();  // ← הוספתי!
     
     // Visual feedback
     showSaveNotification('✅ היעדים נשמרו ומסונכרנו עם מפת דרכים!');
