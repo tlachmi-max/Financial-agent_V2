@@ -1873,8 +1873,8 @@ function exportToExcel() {
 
 function exportExcel() {
     const plan = getCurrentPlan();
-const profile = plan.profile;
- const goals = plan.goals;
+    const profile = plan.profile;
+    const goals = plan.goals;
     
     const wb = XLSX.utils.book_new();
     
