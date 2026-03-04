@@ -635,7 +635,7 @@ function switchPanel(panelId) {
    // 4. הרצת עדכונים ספציפיים לכל טאב
     if (panelId === 'profile') renderChildren();
     if (panelId === 'goals') renderLifeGoals();
-    if (panelId === 'summary') updateSummary();
+    if (panelId === 'summary') renderSummary();
     if (panelId === 'pension') {
         if (typeof renderPensionTab === 'function') renderPensionTab();
     }
@@ -1816,15 +1816,17 @@ function exportToExcel() {
         const ws1 = XLSX.utils.json_to_sheet(invData);
         XLSX.utils.book_append_sheet(wb, ws1, 'מסלולי השקעה');
         
-        // Sheet 2: Dreams with sources
-        const dreamData = plan.dreams.map(d => ({
-            'שם': d.name,
-            'עלות': d.cost,
-            'שנת יעד': d.year,
-            'מקורות': d.sources ? d.sources.join(', ') : ''
-        }));
-        const ws2 = XLSX.utils.json_to_sheet(dreamData);
-        XLSX.utils.book_append_sheet(wb, ws2, 'חלומות');
+        // Sheet 2: Withdrawals (Roadmap)
+        if (plan.withdrawals && plan.withdrawals.length > 0) {
+            const withdrawalData = plan.withdrawals.map(w => ({
+                'שנה': w.year,
+                'מטרה': w.goal || '',
+                'סכום': w.amount,
+                'פעיל': w.active === false ? 'לא' : 'כן'
+            }));
+            const ws2 = XLSX.utils.json_to_sheet(withdrawalData);
+            XLSX.utils.book_append_sheet(wb, ws2, 'מפת דרכים');
+        }
         
         // Sheet 3: Analytics - By Type
         const typeData = Object.entries(byType).map(([name, value]) => ({
@@ -4037,18 +4039,18 @@ function renderGoalProgress() {
         const icon = p.status === 'success' ? '✅' : p.status === 'warning' ? '🟡' : '🔴';
         
         html += `
-            <div style="background: rgba(255,255,255,0.15); padding: 16px; border-radius: 8px;">
+            <div style="background: rgba(255,255,255,0.25); padding: 16px; border-radius: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <div style="font-weight: bold; font-size: 1.1em;">💰 קצבה חודשית (ריאלי אחרי מס)</div>
+                    <div style="font-weight: bold; font-size: 1.1em; color: #1f2937;">💰 קצבה חודשית (ריאלי אחרי מס)</div>
                     <div style="font-size: 1.3em;">${icon}</div>
                 </div>
-                <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 8px;">
+                <div style="font-size: 0.9em; color: #374151; margin-bottom: 8px;">
                     יעד: ${formatCurrency(p.target)}/חודש | צפי: ${formatCurrency(p.projected)}/חודש
                 </div>
                 <div style="background: rgba(0,0,0,0.2); height: 24px; border-radius: 12px; overflow: hidden; margin-bottom: 8px;">
                     <div style="background: ${color}; height: 100%; width: ${p.percentage}%; transition: width 0.3s;"></div>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.85em;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #4b5563;">
                     <span>צפי: ${p.percentage.toFixed(0)}%</span>
                     <span>${p.gap > 0 ? 'חסר' : 'עודף'}: ${formatCurrency(Math.abs(p.gap))}/חודש</span>
                 </div>
@@ -4063,18 +4065,18 @@ function renderGoalProgress() {
         const icon = e.status === 'success' ? '✅' : e.status === 'warning' ? '🟡' : '🔴';
         
         html += `
-            <div style="background: rgba(255,255,255,0.15); padding: 16px; border-radius: 8px;">
+            <div style="background: rgba(255,255,255,0.25); padding: 16px; border-radius: 8px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <div style="font-weight: bold; font-size: 1.1em;">💎 הון עצמי</div>
+                    <div style="font-weight: bold; font-size: 1.1em; color: #1f2937;">💎 הון עצמי</div>
                     <div style="font-size: 1.3em;">${icon}</div>
                 </div>
-                <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 8px;">
+                <div style="font-size: 0.9em; color: #374151; margin-bottom: 8px;">
                     יעד: ${formatCurrency(e.target)} | צפי: ${formatCurrency(e.projected)}
                 </div>
                 <div style="background: rgba(0,0,0,0.2); height: 24px; border-radius: 12px; overflow: hidden; margin-bottom: 8px;">
                     <div style="background: ${color}; height: 100%; width: ${e.percentage}%; transition: width 0.3s;"></div>
                 </div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.85em;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #4b5563;">
                     <span>${e.percentage.toFixed(0)}% צפי</span>
                     <span>${e.gap > 0 ? 'חסר' : 'עודף'}: ${formatCurrency(Math.abs(e.gap))}</span>
                 </div>
@@ -4089,18 +4091,18 @@ function renderGoalProgress() {
             const icon = lg.status === 'success' ? '✅' : lg.status === 'warning' ? '🟡' : '🔴';
             
             html += `
-                <div style="background: rgba(255,255,255,0.15); padding: 16px; border-radius: 8px;">
+                <div style="background: rgba(255,255,255,0.25); padding: 16px; border-radius: 8px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <div style="font-weight: bold; font-size: 1.1em;">🎯 ${lg.name}</div>
+                        <div style="font-weight: bold; font-size: 1.1em; color: #1f2937;">🎯 ${lg.name}</div>
                         <div style="font-size: 1.3em;">${icon}</div>
                     </div>
-                    <div style="font-size: 0.9em; opacity: 0.9; margin-bottom: 8px;">
+                    <div style="font-size: 0.9em; color: #374151; margin-bottom: 8px;">
                         יעד: ${formatCurrency(lg.target)} ב-${lg.year} | צפי: ${formatCurrency(lg.projected)}
                     </div>
                     <div style="background: rgba(0,0,0,0.2); height: 24px; border-radius: 12px; overflow: hidden; margin-bottom: 8px;">
                         <div style="background: ${color}; height: 100%; width: ${lg.percentage}%; transition: width 0.3s;"></div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.85em;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85em; color: #4b5563;">
                         <span>${lg.percentage.toFixed(0)}% צפי</span>
                         <span>${lg.gap > 0 ? 'חסר' : 'עודף'}: ${formatCurrency(Math.abs(lg.gap))}</span>
                     </div>
