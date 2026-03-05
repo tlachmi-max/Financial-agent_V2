@@ -644,6 +644,7 @@ function switchPanel(panelId) {
     if (panelId === 'profile') renderChildren();
     if (panelId === 'goals') renderLifeGoals();
     if (panelId === 'summary') renderSummary();
+    if (panelId === 'projections') renderProjections();
     if (panelId === 'charts') {
         // setTimeout נדרש ל-iPhone כדי שה-canvas יהיה מוכן
         setTimeout(() => renderCharts(), 100);
@@ -4766,8 +4767,11 @@ function generateAnalysisReport() {
         });
     }
     
+    // Get selected interval from projections tab (default 5)
+    const interval = parseInt(document.getElementById('projInterval')?.value) || 5;
+    
     // Generate HTML
-    const html = generateAnalysisHTML(yearlyData, goals, profile);
+    const html = generateAnalysisHTML(yearlyData, goals, profile, interval);
     
     // Open in new window
     const reportWindow = window.open('', '_blank', 'width=1200,height=800');
@@ -4775,7 +4779,7 @@ function generateAnalysisReport() {
     reportWindow.document.close();
 }
 
-function generateAnalysisHTML(yearlyData, goals, profile) {
+function generateAnalysisHTML(yearlyData, goals, profile, interval = 5) {
     const analysis = analyzeGoals();
     const recommendations = generateRecommendations(analysis);
     const plan = getCurrentPlan();
@@ -5045,6 +5049,10 @@ function generateAnalysisHTML(yearlyData, goals, profile) {
         <!-- Yearly Table -->
         <div class="section">
             <div class="section-title">📋 פירוט שנתי</div>
+            <p style="color: #666; margin-bottom: 16px; font-size: 0.95em;">
+                מרווח: כל ${interval === 1 ? 'שנה' : interval === 2 ? 'שנתיים' : `${interval} שנים`} 
+                (+ שנים עם משיכות ושנות יעד)
+            </p>
             <table>
                 <thead>
                     <tr>
@@ -5058,7 +5066,11 @@ function generateAnalysisHTML(yearlyData, goals, profile) {
                     </tr>
                 </thead>
                 <tbody>
-                    ${yearlyData.filter((d, i) => i % 5 === 0 || d.withdrawals > 0 || d.isGoalYear).map(d => {
+                    ${yearlyData.filter((d, i) => {
+                        // Show if: it's at the interval, OR has withdrawals, OR is a goal year
+                        const yearsSinceStart = d.year - yearlyData[0].year;
+                        return yearsSinceStart % interval === 0 || d.withdrawals > 0 || d.isGoalYear;
+                    }).map(d => {
                         const purposes = d.withdrawalsList && d.withdrawalsList.length > 0 
                             ? d.withdrawalsList.map(w => w.goal).join(', ')
                             : '-';
