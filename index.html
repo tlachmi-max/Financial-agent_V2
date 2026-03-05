@@ -614,6 +614,14 @@
                             <label style="white-space: nowrap;">שנים:</label>
                             <input type="number" class="form-input" id="projYears" value="30" min="5" max="50" style="width: 70px;">
                             <button class="btn btn-primary btn-sm" onclick="renderProjections()" style="padding: 6px 12px; font-size: 0.9em;">עדכן</button>
+                            <label style="white-space: nowrap; margin-right: 16px;">כל:</label>
+                            <select class="form-select" id="projInterval" style="width: 100px;" onchange="renderProjections()">
+                                <option value="1">שנה</option>
+                                <option value="2">שנתיים</option>
+                                <option value="3">3 שנים</option>
+                                <option value="5" selected>5 שנים</option>
+                                <option value="10">10 שנים</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -732,6 +740,43 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Impact Simulator -->
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; margin-bottom: 24px;">
+                    <div style="color: white;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 1.4em;">🧮 סימולטור "מה אם"</h3>
+                        <p style="margin: 0 0 20px 0; opacity: 0.95; font-size: 0.95em;">
+                            בדוק איך שינויים בתשואה ודמי ניהול ישפיעו על ההון העצמי שלך
+                        </p>
+                        
+                        <div style="background: rgba(255,255,255,0.15); padding: 20px; border-radius: 12px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">תשואה שנתית %</label>
+                                    <input type="number" class="form-input" id="simReturn" value="7" min="0" max="30" step="0.1" style="width: 100%;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">דמ"נ צבירה %</label>
+                                    <input type="number" class="form-input" id="simFeeAnnual" value="0.5" min="0" max="5" step="0.01" style="width: 100%;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">דמ"נ הפקדה %</label>
+                                    <input type="number" class="form-input" id="simFeeDeposit" value="0" min="0" max="10" step="0.1" style="width: 100%;">
+                                </div>
+                                <div>
+                                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">בעוד (שנים)</label>
+                                    <input type="number" class="form-input" id="simYears" value="20" min="1" max="50" style="width: 100%;">
+                                </div>
+                            </div>
+                            
+                            <button onclick="simulateImpact()" class="btn btn-primary" style="width: 100%; background: white; color: #667eea; font-weight: bold; font-size: 1.1em; padding: 12px;">
+                                🔮 חשב השפעה
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="simResults"></div>
                 
                 <div class="card">
                     <div class="card-title mb-3">פירוט מסלולי השקעה</div>
