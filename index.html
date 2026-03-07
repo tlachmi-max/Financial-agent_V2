@@ -373,7 +373,6 @@
                             <div id="subTracksList" class="sub-tracks-list"></div>
                             
                             <div class="sub-track-add">
-                                <!-- Row 1: Type Selection -->
                                 <div class="form-group" style="margin-bottom: 16px;">
                                     <label class="form-label">סוג תת-מסלול</label>
                                     <select class="form-select" id="subTrackType" style="width: 100%;">
@@ -392,13 +391,11 @@
                                     </select>
                                 </div>
                                 
-                                <!-- Custom Name Field (shown only when "אחר" is selected) -->
                                 <div class="form-group" id="customNameField" style="margin-bottom: 16px; display: none;">
                                     <label class="form-label">שם תת-מסלול מותאם</label>
                                     <input type="text" class="form-input" id="subTrackCustomName" placeholder="לדוגמה: קרן נאמנות טכנולוגיה" style="width: 100%;">
                                 </div>
                                 
-                                <!-- Manual Risk Level (shown for נדל"ן and אחר) -->
                                 <div class="form-group" id="manualRiskField" style="margin-bottom: 16px; display: none;">
                                     <label class="form-label">רמת סיכון (בחירה ידנית)</label>
                                     <select class="form-select" id="subTrackRiskLevel" style="width: 100%;">
@@ -409,7 +406,6 @@
                                     </select>
                                 </div>
                                 
-                                <!-- Row 2: Numbers -->
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                                     <div class="form-group">
                                         <label class="form-label">אחוז %</label>
@@ -421,7 +417,6 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Row 3: Big Add Button -->
                                 <button type="button" class="btn btn-success" onclick="addSubTrack()" style="width: 100%; min-height: 60px; font-size: 1.5em; margin-bottom: 12px;">
                                     ➕ הוסף תת-מסלול
                                 </button>
@@ -455,11 +450,10 @@
                 </div>
             </div>
 
-            <!-- Panel 2: Dreams -->
+            <!-- Panel 2: Goals -->
             <div id="goals" class="panel">
                 <h2 class="mb-4">🎯 יעדים פיננסיים</h2>
                 
-                <!-- Retirement Goals -->
                 <div class="card mb-4">
                     <div class="card-title">💰 יעדי פנסיה</div>
                     <div style="margin-top: 16px;">
@@ -484,7 +478,6 @@
                     </div>
                 </div>
                 
-                <!-- Equity Goal -->
                 <div class="card mb-4">
                     <div class="card-title">💎 יעד הון עצמי בפרישה</div>
                     <div style="margin-top: 16px;">
@@ -505,7 +498,6 @@
                     </div>
                 </div>
                 
-                <!-- Life Goals -->
                 <div class="card mb-4">
                     <div class="card-title">🎯 יעדי חיים</div>
                     <div id="lifeGoalsList" style="margin-top: 16px;"></div>
@@ -515,7 +507,6 @@
                     </button>
                 </div>
                 
-                <!-- Save Button -->
                 <div style="display: flex; gap: 12px; justify-content: flex-end;">
                     <button class="btn btn-primary" onclick="saveGoals()">
                         <span>💾</span>
@@ -545,30 +536,18 @@
                     <form id="withdrawalForm" onsubmit="saveWithdrawal(event)">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label class="form-label">
-                                    <span class="required">*</span>
-                                    שנה
-                                </label>
+                                <label class="form-label"><span class="required">*</span> שנה</label>
                                 <input type="number" class="form-input" id="wYear" min="2026" max="2100" placeholder="2032" required>
                             </div>
-                            
                             <div class="form-group">
-                                <label class="form-label">
-                                    <span class="required">*</span>
-                                    סכום (₪)
-                                </label>
+                                <label class="form-label"><span class="required">*</span> סכום (₪)</label>
                                 <input type="number" class="form-input" id="wAmount" min="1000" placeholder="100000" required>
                             </div>
                         </div>
-                        
                         <div class="form-group">
-                            <label class="form-label">
-                                <span class="required">*</span>
-                                מטרה
-                            </label>
+                            <label class="form-label"><span class="required">*</span> מטרה</label>
                             <input type="text" class="form-input" id="wGoal" placeholder="חתונה / רכב / דירה" required>
                         </div>
-                        
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">
                                 <span id="btnSaveWithdrawalText">➕ הוסף משיכה</span>
@@ -582,14 +561,10 @@
                 
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">
-                            <span>📊</span>
-                            <span>ציר זמן - משיכות מתוכננות</span>
-                        </div>
+                        <div class="card-title"><span>📊</span><span>ציר זמן - משיכות מתוכננות</span></div>
                     </div>
                     <div id="withdrawalTimeline"></div>
                 </div>
-                
                 <div id="withdrawalStrategies"></div>
             </div>
 
@@ -606,10 +581,7 @@
                 
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">
-                            <span>📈</span>
-                            <span>תחזית פיננסית</span>
-                        </div>
+                        <div class="card-title"><span>📈</span><span>תחזית פיננסית</span></div>
                         <div class="flex gap-2 items-center" style="flex-wrap: nowrap;">
                             <label style="white-space: nowrap;">שנים:</label>
                             <input type="number" class="form-input" id="projYears" value="30" min="5" max="50" style="width: 70px;">
@@ -629,10 +601,7 @@
                         <label class="form-label">הצג פירוט לשנה ספציפית:</label>
                         <div class="flex gap-2">
                             <input type="number" class="form-input" id="specificYear" placeholder="לדוגמה: 2035" min="2025" max="2075" style="flex: 1;">
-                            <button class="btn btn-primary" onclick="showYearDetails()">
-                                <span>🔍</span>
-                                <span>הצג פירוט</span>
-                            </button>
+                            <button class="btn btn-primary" onclick="showYearDetails()"><span>🔍</span><span>הצג פירוט</span></button>
                         </div>
                     </div>
                     
@@ -668,7 +637,6 @@
                     </div>
                 </div>
                 
-                <!-- Total Today Card (Equity Only) -->
                 <div class="stat-card blue" style="margin-bottom: 24px; border: 3px solid #3b82f6;">
                     <div class="stat-label" style="font-size: 1.2em; font-weight: bold;">💰 הון עצמי היום *</div>
                     <div class="stat-value" id="sumToday" style="font-size: 2.5em; color: #3b82f6;">₪0</div>
@@ -690,54 +658,37 @@
                         <div class="stat-label">ערך נומינלי כולל</div>
                         <div class="stat-value" id="sumNominal">₪0</div>
                         <div class="stat-detail" id="sumYearsLabel">בעוד 20 שנה</div>
-                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">
-                            ✅ אחרי הפחתת דמי ניהול
-                        </div>
+                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">✅ אחרי הפחתת דמי ניהול</div>
                     </div>
-                    
                     <div class="stat-card">
                         <div class="stat-label">ערך ריאלי (כוח קנייה)</div>
                         <div class="stat-value" id="sumReal">₪0</div>
                         <div class="stat-detail">שווה ערך לכסף של היום</div>
-                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">
-                            ✅ אחרי הפחתת דמי ניהול
-                        </div>
+                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">✅ אחרי הפחתת דמי ניהול</div>
                     </div>
-                    
                     <div class="stat-card red">
                         <div class="stat-label">סה"כ דמי ניהול</div>
                         <div class="stat-value" id="sumFees">₪0</div>
                         <div class="stat-detail">עלות דמי הניהול על התקופה</div>
-                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">
-                            הופחת מהערך הנומינלי
-                        </div>
+                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">הופחת מהערך הנומינלי</div>
                     </div>
-                    
                     <div class="stat-card orange">
                         <div class="stat-label">מס על רווחים</div>
                         <div class="stat-value" id="sumTax">₪0</div>
                         <div class="stat-detail">המס שתשלם במשיכה מלאה</div>
-                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">
-                            ❌ לא הופחת - משולם במשיכה
-                        </div>
+                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">❌ לא הופחת - משולם במשיכה</div>
                     </div>
-                    
                     <div class="stat-card purple">
                         <div class="stat-label">ממוצע דמי ניהול</div>
                         <div class="stat-value" id="sumAvgFees" style="font-size: 2em;">-</div>
                         <div class="stat-detail">ממוצע משוקלל של כל המסלולים</div>
-                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">
-                            צבירה: <span id="sumAvgFeeAnnual">-</span> | הפקדה: <span id="sumAvgFeeDeposit">-</span>
-                        </div>
+                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">צבירה: <span id="sumAvgFeeAnnual">-</span> | הפקדה: <span id="sumAvgFeeDeposit">-</span></div>
                     </div>
-                    
                     <div class="stat-card teal">
                         <div class="stat-label">ממוצע תשואה</div>
                         <div class="stat-value" id="sumAvgReturn" style="font-size: 2em;">-</div>
                         <div class="stat-detail">ממוצע משוקלל של כל המסלולים</div>
-                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">
-                            ✅ לפני דמי ניהול
-                        </div>
+                        <div class="stat-detail" style="font-size: 0.75em; margin-top: 4px; color: rgba(255, 255, 255, 0.9);">✅ לפני דמי ניהול</div>
                     </div>
                 </div>
                 
@@ -746,16 +697,13 @@
                     <div id="summaryBreakdown" class="items-list"></div>
                 </div>
                 
-                <!-- Goal Progress -->
                 <div id="goalProgress"></div>
                 <div style="text-align: center; margin: 30px 0;">
                     <button class="btn btn-primary" onclick="generateAnalysisReport()" style="font-size: 1.2em; padding: 16px 32px;">
-                        <span>📊</span>
-                        <span>דוח ניתוח מפורט</span>
+                        <span>📊</span><span>דוח ניתוח מפורט</span>
                     </button>
                     <div style="font-size: 0.9em; color: #666; margin-top: 8px;">גרף timeline שנתי + טבלת פירוט + המלצות</div>
                 </div>
-                
                 <div id="recommendations"></div>
                 <div id="riskAnalysis"></div>
             </div>
@@ -772,18 +720,13 @@
                     </div>
                 </div>
                 
-                <!-- Pension by Spouse -->
                 <div class="card mb-4">
                     <div class="card-title">קופות פנסיה</div>
-                    
                     <div style="display: grid; gap: 20px; margin-top: 20px;">
-                        <!-- Husband's Pensions -->
                         <div class="card" style="background: rgba(59, 130, 246, 0.05); border: 2px solid #3b82f6;">
                             <div class="card-title" style="color: #3b82f6;">👨 בעל</div>
                             <div id="pensionHusband" class="items-list"></div>
                         </div>
-                        
-                        <!-- Wife's Pensions -->
                         <div class="card" style="background: rgba(236, 72, 153, 0.05); border: 2px solid #ec4899;">
                             <div class="card-title" style="color: #ec4899;">👩 אשה</div>
                             <div id="pensionWife" class="items-list"></div>
@@ -791,52 +734,35 @@
                     </div>
                 </div>
                 
-                <!-- Monthly Pension Forecast -->
                 <div class="card mb-4">
                     <div class="card-title">קצבה חודשית צפויה</div>
                     <p style="font-size: 0.85em; color: #666; margin-top: 8px;">
                         💡 <strong>נומינלי</strong> = סכום בפועל בחשבון | <strong>ריאלי</strong> = כוח קנייה של היום (מותאם לאינפלציה)
                     </p>
-                    
                     <div style="display: grid; gap: 16px; margin-top: 20px;">
-                        <!-- Combined Cards -->
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                            <!-- Combined Nominal -->
                             <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                                 <div class="stat-label">קצבה משפחתית - נומינלי</div>
                                 <div class="stat-value" id="pensionCombinedNominal">₪0</div>
                                 <div class="stat-detail" style="opacity: 0.9;">סכום בפועל</div>
                             </div>
-                            
-                            <!-- Combined Real -->
                             <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
                                 <div class="stat-label">קצבה משפחתית - ריאלי</div>
                                 <div class="stat-value" id="pensionCombinedReal">₪0</div>
                                 <div class="stat-detail" style="opacity: 0.9;">כוח קנייה של היום</div>
                             </div>
                         </div>
-                        
-                        <!-- Combined Net -->
                         <div class="stat-card" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
                             <div class="stat-label">💎 קצבה משפחתית - נטו (אחרי מס)</div>
                             <div class="stat-value" id="pensionCombinedNet">₪0</div>
                             <div class="stat-detail" id="pensionCombinedTax" style="opacity: 0.9;">מחושב מהסכום הנומינלי</div>
                         </div>
-                        
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                            <!-- Husband -->
                             <div class="card" style="background: rgba(59, 130, 246, 0.1); border: 2px solid #3b82f6; padding: 16px;">
                                 <div style="font-weight: bold; color: #3b82f6; margin-bottom: 12px;">👨 בעל (גיל 67)</div>
-                                
                                 <div style="display: grid; gap: 8px;">
-                                    <div>
-                                        <div style="font-size: 0.8em; color: #666;">נומינלי:</div>
-                                        <div style="font-size: 1.2em; font-weight: bold; color: #1f2937;" id="pensionHusbandNominal">₪0</div>
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 0.8em; color: #666;">ריאלי:</div>
-                                        <div style="font-size: 1.2em; font-weight: bold; color: #f59e0b;" id="pensionHusbandReal">₪0</div>
-                                    </div>
+                                    <div><div style="font-size: 0.8em; color: #666;">נומינלי:</div><div style="font-size: 1.2em; font-weight: bold; color: #1f2937;" id="pensionHusbandNominal">₪0</div></div>
+                                    <div><div style="font-size: 0.8em; color: #666;">ריאלי:</div><div style="font-size: 1.2em; font-weight: bold; color: #f59e0b;" id="pensionHusbandReal">₪0</div></div>
                                     <div style="border-top: 1px solid #e5e7eb; padding-top: 8px; margin-top: 4px;">
                                         <div style="font-size: 0.8em; color: #666;">💎 נטו:</div>
                                         <div style="font-size: 1.4em; font-weight: bold; color: #3b82f6;" id="pensionHusbandNet">₪0</div>
@@ -844,20 +770,11 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            <!-- Wife -->
                             <div class="card" style="background: rgba(236, 72, 153, 0.1); border: 2px solid #ec4899; padding: 16px;">
                                 <div style="font-weight: bold; color: #ec4899; margin-bottom: 12px;">👩 אשה (גיל 62)</div>
-                                
                                 <div style="display: grid; gap: 8px;">
-                                    <div>
-                                        <div style="font-size: 0.8em; color: #666;">נומינלי:</div>
-                                        <div style="font-size: 1.2em; font-weight: bold; color: #1f2937;" id="pensionWifeNominal">₪0</div>
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 0.8em; color: #666;">ריאלי:</div>
-                                        <div style="font-size: 1.2em; font-weight: bold; color: #f59e0b;" id="pensionWifeReal">₪0</div>
-                                    </div>
+                                    <div><div style="font-size: 0.8em; color: #666;">נומינלי:</div><div style="font-size: 1.2em; font-weight: bold; color: #1f2937;" id="pensionWifeNominal">₪0</div></div>
+                                    <div><div style="font-size: 0.8em; color: #666;">ריאלי:</div><div style="font-size: 1.2em; font-weight: bold; color: #f59e0b;" id="pensionWifeReal">₪0</div></div>
                                     <div style="border-top: 1px solid #e5e7eb; padding-top: 8px; margin-top: 4px;">
                                         <div style="font-size: 0.8em; color: #666;">💎 נטו:</div>
                                         <div style="font-size: 1.4em; font-weight: bold; color: #ec4899;" id="pensionWifeNet">₪0</div>
@@ -869,34 +786,24 @@
                     </div>
                 </div>
                 
-                <!-- Withdrawal Simulator -->
                 <div class="card">
                     <div class="card-title">סימולטור משיכה מפנסיה</div>
-                    <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">
-                        חשב את המס והקצבה החודשית במקרה של משיכה מוקדמת או מאוחרת
-                    </p>
-                    
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">חשב את המס והקצבה החודשית במקרה של משיכה מוקדמת או מאוחרת</p>
                     <div class="form-group">
                         <label class="form-label">בחר קופת פנסיה</label>
-                        <select class="form-select" id="pensionSimSelect">
-                            <option value="">בחר קופה...</option>
-                        </select>
+                        <select class="form-select" id="pensionSimSelect"><option value="">בחר קופה...</option></select>
                     </div>
-                    
                     <div class="form-group">
                         <label class="form-label">גיל משיכה</label>
                         <input type="number" class="form-input" id="pensionSimAge" placeholder="62-70" min="50" max="75">
                     </div>
-                    
                     <button class="btn btn-primary" onclick="simulatePensionWithdrawal()">חשב קצבה</button>
-                    
                     <div id="pensionSimResult" style="margin-top: 20px;"></div>
                 </div>
             </div>
 
             <!-- Panel 5: Charts -->
             <div id="charts" class="panel">
-                <!-- Year Selector -->
                 <div class="card" style="background: rgba(59, 130, 246, 0.1); border: 2px solid #3b82f6; margin-bottom: 20px;">
                     <div class="flex justify-between items-center">
                         <h3 style="margin: 0; color: #3b82f6;">📊 הצג גרפים לפי:</h3>
@@ -914,85 +821,24 @@
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="card-title mb-3">📊 חלוקה לפי תתי-מסלולים</div>
-                    <canvas id="chartBySubTracks"></canvas>
-                    <button class="btn btn-sm btn-secondary" onclick="downloadChart('chartBySubTracks', 'תתי-מסלולים')" style="margin-top: 12px; width: 100%;">
-                        💾 שמור כתמונה
-                    </button>
-                </div>
-                
-                <div class="card">
-                    <div class="card-title mb-3">📈 חלוקה לפי סוג מסלול</div>
-                    <canvas id="chartByType"></canvas>
-                    <button class="btn btn-sm btn-secondary" onclick="downloadChart('chartByType', 'סוג-מסלול')" style="margin-top: 12px; width: 100%;">
-                        💾 שמור כתמונה
-                    </button>
-                </div>
-                
-                <div class="card">
-                    <div class="card-title mb-3">🏢 חלוקה לפי בית השקעות</div>
-                    <canvas id="chartByHouse"></canvas>
-                    <button class="btn btn-sm btn-secondary" onclick="downloadChart('chartByHouse', 'בית-השקעות')" style="margin-top: 12px; width: 100%;">
-                        💾 שמור כתמונה
-                    </button>
-                </div>
-                
-                <div class="card">
-                    <div class="card-title mb-3">💸 חלוקה לפי מיסוי</div>
-                    <canvas id="chartByTax"></canvas>
-                    <button class="btn btn-sm btn-secondary" onclick="downloadChart('chartByTax', 'מיסוי')" style="margin-top: 12px; width: 100%;">
-                        💾 שמור כתמונה
-                    </button>
-                </div>
-                
-                <div class="card">
-                    <div class="card-title mb-3">⚠️ חלוקה לפי רמת סיכון</div>
-                    <canvas id="chartByRisk"></canvas>
-                    <button class="btn btn-sm btn-secondary" onclick="downloadChart('chartByRisk', 'סיכון')" style="margin-top: 12px; width: 100%;">
-                        💾 שמור כתמונה
-                    </button>
-                </div>
-                
-                <div class="card">
-                    <div class="card-title mb-3">📸 נקודת ייחוס</div>
-                    <p style="margin-bottom: 16px;">שמור את מצב התיק הנוכחי כנקודת התחלה להשוואה עתידית</p>
-                    <button class="btn btn-primary" onclick="saveSnapshot()">📸 שמור נקודת ייחוס</button>
-                </div>
+                <div class="card"><div class="card-title mb-3">📊 חלוקה לפי תתי-מסלולים</div><canvas id="chartBySubTracks"></canvas><button class="btn btn-sm btn-secondary" onclick="downloadChart('chartBySubTracks', 'תתי-מסלולים')" style="margin-top: 12px; width: 100%;">💾 שמור כתמונה</button></div>
+                <div class="card"><div class="card-title mb-3">📈 חלוקה לפי סוג מסלול</div><canvas id="chartByType"></canvas><button class="btn btn-sm btn-secondary" onclick="downloadChart('chartByType', 'סוג-מסלול')" style="margin-top: 12px; width: 100%;">💾 שמור כתמונה</button></div>
+                <div class="card"><div class="card-title mb-3">🏢 חלוקה לפי בית השקעות</div><canvas id="chartByHouse"></canvas><button class="btn btn-sm btn-secondary" onclick="downloadChart('chartByHouse', 'בית-השקעות')" style="margin-top: 12px; width: 100%;">💾 שמור כתמונה</button></div>
+                <div class="card"><div class="card-title mb-3">💸 חלוקה לפי מיסוי</div><canvas id="chartByTax"></canvas><button class="btn btn-sm btn-secondary" onclick="downloadChart('chartByTax', 'מיסוי')" style="margin-top: 12px; width: 100%;">💾 שמור כתמונה</button></div>
+                <div class="card"><div class="card-title mb-3">⚠️ חלוקה לפי רמת סיכון</div><canvas id="chartByRisk"></canvas><button class="btn btn-sm btn-secondary" onclick="downloadChart('chartByRisk', 'סיכון')" style="margin-top: 12px; width: 100%;">💾 שמור כתמונה</button></div>
+                <div class="card"><div class="card-title mb-3">📸 נקודת ייחוס</div><p style="margin-bottom: 16px;">שמור את מצב התיק הנוכחי כנקודת התחלה להשוואה עתידית</p><button class="btn btn-primary" onclick="saveSnapshot()">📸 שמור נקודת ייחוס</button></div>
             </div>
 
             <!-- Panel 6: Tasks -->
             <div id="tasks" class="panel">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <span>✓</span>
-                            <span>משימות לביצוע ומעקב</span>
-                        </div>
-                    </div>
-                    
+                    <div class="card-header"><div class="card-title"><span>✓</span><span>משימות לביצוע ומעקב</span></div></div>
                     <div class="flex gap-2 mb-3">
-                        <input type="text" 
-                               class="form-input" 
-                               id="newTask" 
-                               placeholder="הוסף משימה חדשה..." 
-                               style="flex: 1;"
-                               onkeypress="if(event.key==='Enter') addTask()">
-                        <button class="btn btn-success" onclick="addTask()">
-                            <span>➕</span>
-                            <span>הוסף</span>
-                        </button>
+                        <input type="text" class="form-input" id="newTask" placeholder="הוסף משימה חדשה..." style="flex: 1;" onkeypress="if(event.key==='Enter') addTask()">
+                        <button class="btn btn-success" onclick="addTask()"><span>➕</span><span>הוסף</span></button>
                     </div>
-                    
                     <div id="tasksList"></div>
-                    
-                    <div class="alert alert-info mt-3">
-                        <span class="alert-icon">📊</span>
-                        <div>
-                            <strong>התקדמות:</strong>
-                            <span id="taskProgress">0% הושלמו</span>
-                        </div>
-                    </div>
+                    <div class="alert alert-info mt-3"><span class="alert-icon">📊</span><div><strong>התקדמות:</strong><span id="taskProgress">0% הושלמו</span></div></div>
                 </div>
             </div>
         </main>
@@ -1001,15 +847,9 @@
     <!-- Plan Manager Modal -->
     <div id="planModal" class="modal" style="display: none;">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>ניהול תוכניות</h2>
-                <button class="btn-close" onclick="closePlanManager()">✕</button>
-            </div>
+            <div class="modal-header"><h2>ניהול תוכניות</h2><button class="btn-close" onclick="closePlanManager()">✕</button></div>
             <div class="modal-body">
-                <button class="btn btn-success btn-full mb-2" onclick="createNewPlan()">
-                    <span>➕</span>
-                    <span>צור תוכנית חדשה</span>
-                </button>
+                <button class="btn btn-success btn-full mb-2" onclick="createNewPlan()"><span>➕</span><span>צור תוכנית חדשה</span></button>
                 <div id="plansList"></div>
             </div>
         </div>
@@ -1018,85 +858,30 @@
     <!-- Cloud Sync Modal -->
     <div id="cloudSyncModal" class="modal" style="display: none;">
         <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h2 id="cloudSyncTitle">☁️ סנכרון לענן</h2>
-                <button class="btn-close" onclick="closeCloudSync()">✕</button>
-            </div>
+            <div class="modal-header"><h2 id="cloudSyncTitle">☁️ סנכרון לענן</h2><button class="btn-close" onclick="closeCloudSync()">✕</button></div>
             <div class="modal-body">
-                <!-- Guest Mode Info -->
-                <div id="guestModeInfo" class="alert alert-info">
-                    <span class="alert-icon">💾</span>
-                    <div>
-                        <strong>מצב אורח</strong><br>
-                        הנתונים שלך נשמרים מקומית במכשיר זה בלבד.<br>
-                        התחבר כדי לסנכרן בין מכשירים ולגבות בענן.
-                    </div>
-                </div>
-
-                <!-- Login Form -->
+                <div id="guestModeInfo" class="alert alert-info"><span class="alert-icon">💾</span><div><strong>מצב אורח</strong><br>הנתונים שלך נשמרים מקומית במכשיר זה בלבד.<br>התחבר כדי לסנכרן בין מכשירים ולגבות בענן.</div></div>
                 <div id="loginForm">
-                    <div class="form-group">
-                        <label class="form-label">אימייל</label>
-                        <input type="email" class="form-input" id="cloudEmail" placeholder="your@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">סיסמה</label>
-                        <input type="password" class="form-input" id="cloudPassword" placeholder="••••••">
-                    </div>
-                    <button class="btn btn-primary btn-full" onclick="cloudLogin()">
-                        <span>🔐</span>
-                        <span>התחבר וסנכרן</span>
-                    </button>
-                    <button class="btn btn-secondary btn-full" onclick="showCloudRegister()">
-                        <span>✅</span>
-                        <span>הרשמה</span>
-                    </button>
+                    <div class="form-group"><label class="form-label">אימייל</label><input type="email" class="form-input" id="cloudEmail" placeholder="your@email.com"></div>
+                    <div class="form-group"><label class="form-label">סיסמה</label><input type="password" class="form-input" id="cloudPassword" placeholder="••••••"></div>
+                    <button class="btn btn-primary btn-full" onclick="cloudLogin()"><span>🔐</span><span>התחבר וסנכרן</span></button>
+                    <button class="btn btn-secondary btn-full" onclick="showCloudRegister()"><span>✅</span><span>הרשמה</span></button>
                 </div>
-
-                <!-- Register Form -->
                 <div id="registerForm" style="display: none;">
-                    <div class="form-group">
-                        <label class="form-label">אימייל</label>
-                        <input type="email" class="form-input" id="registerEmail" placeholder="your@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">סיסמה</label>
-                        <input type="password" class="form-input" id="registerPassword" placeholder="לפחות 6 תווים">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">אימות סיסמה</label>
-                        <input type="password" class="form-input" id="registerConfirm" placeholder="הזן סיסמה שוב">
-                    </div>
-                    <button class="btn btn-success btn-full" onclick="cloudRegister()">
-                        <span>✅</span>
-                        <span>הרשם וסנכרן</span>
-                    </button>
-                    <button class="btn btn-secondary btn-full" onclick="showCloudLogin()">
-                        <span>◀</span>
-                        <span>חזרה להתחברות</span>
-                    </button>
+                    <div class="form-group"><label class="form-label">אימייל</label><input type="email" class="form-input" id="registerEmail" placeholder="your@email.com"></div>
+                    <div class="form-group"><label class="form-label">סיסמה</label><input type="password" class="form-input" id="registerPassword" placeholder="לפחות 6 תווים"></div>
+                    <div class="form-group"><label class="form-label">אימות סיסמה</label><input type="password" class="form-input" id="registerConfirm" placeholder="הזן סיסמה שוב"></div>
+                    <button class="btn btn-success btn-full" onclick="cloudRegister()"><span>✅</span><span>הרשם וסנכרן</span></button>
+                    <button class="btn btn-secondary btn-full" onclick="showCloudLogin()"><span>◀</span><span>חזרה להתחברות</span></button>
                 </div>
-
-                <!-- Logged In View -->
                 <div id="loggedInView" style="display: none;">
-                    <div class="alert alert-success">
-                        <span class="alert-icon">✅</span>
-                        <div>
-                            <strong>מחובר לענן</strong><br>
-                            <span id="cloudUserEmail"></span><br>
-                            הנתונים שלך מסונכרנים בזמן אמת
-                        </div>
-                    </div>
-                    <button class="btn btn-danger btn-full" onclick="cloudLogout()">
-                        <span>🚪</span>
-                        <span>התנתק (המשך מקומי)</span>
-                    </button>
+                    <div class="alert alert-success"><span class="alert-icon">✅</span><div><strong>מחובר לענן</strong><br><span id="cloudUserEmail"></span><br>הנתונים שלך מסונכרנים בזמן אמת</div></div>
+                    <button class="btn btn-danger btn-full" onclick="cloudLogout()"><span>🚪</span><span>התנתק (המשך מקומי)</span></button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Check Supabase loaded -->
     <script>
         console.log('🔍 Checking Supabase library...');
         console.log('window.supabase:', typeof window.supabase);
@@ -1110,6 +895,7 @@
 
     <!-- Load JavaScript -->
     <script src="script.js?v=FORCE_RESET_999999"></script>
+    <script src="patch.js?v=1"></script>
     
     <!-- PWA Registration -->
 </body>
