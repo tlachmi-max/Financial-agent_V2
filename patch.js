@@ -88,12 +88,55 @@ console.log('✅ patch.js v4 loading...');
             color: #f0f6fc !important;
         }
         
-        /* Roadmap timeline mobile fix */
+        /* Roadmap: fix nested card narrowing in withdrawal strategies */
+        #withdrawalStrategies .card {
+            padding: 12px !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+        #withdrawalStrategies .card .card {
+            border: none !important;
+            padding: 8px !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+        }
+        #withdrawalStrategies .card .card .card {
+            padding: 4px !important;
+        }
+        #withdrawalStrategies .card-header {
+            padding: 8px 0 !important;
+        }
+        
+        /* Fix the grid inside strategies that overflows on mobile */
+        #withdrawalStrategies div[style*="grid-template-columns: repeat(3"] {
+            grid-template-columns: 1fr !important;
+            gap: 8px !important;
+        }
+        #withdrawalStrategies div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+            gap: 8px !important;
+        }
+        
+        /* Reduce inner padding on all deeply nested divs */
+        #withdrawalStrategies div[style*="padding: 20px"] {
+            padding: 10px !important;
+        }
+        #withdrawalStrategies div[style*="padding: 16px"] {
+            padding: 8px !important;
+        }
+        #withdrawalStrategies div[style*="padding: 12px"] {
+            padding: 6px !important;
+        }
+        
         @media (max-width: 768px) {
-            .timeline-card-grid {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 12px !important;
+            #withdrawalStrategies .card {
+                padding: 8px !important;
+            }
+            #withdrawalStrategies div[style*="padding: 20px"] {
+                padding: 6px !important;
+            }
+            #withdrawalStrategies div[style*="padding: 16px"] {
+                padding: 6px !important;
             }
         }
     `;
