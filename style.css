@@ -1484,6 +1484,241 @@ canvas { max-width: 100%; }
 }
 
 /* ============================================================
+   DASHBOARD — Premium Card Layout
+   ============================================================ */
+
+/* Dashboard cards shared */
+.dcard {
+    background: #FFFFFF;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.dcard:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+
+.dcard-chevron {
+    position: absolute;
+    top: 50%; left: 14px;
+    transform: translateY(-50%);
+    font-size: 1.4em;
+    color: #D1D5DB;
+    font-weight: 300;
+}
+
+/* Card 1: Hero — liquid assets */
+.dcard-hero { padding: 28px 28px 24px; }
+
+.dcard-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dcard-label {
+    font-size: 0.92em;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+}
+
+.dcard-big-value {
+    font-size: 2.2em;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.dcard-sub {
+    font-size: 0.82em;
+    color: var(--text-secondary);
+    margin-top: 8px;
+}
+
+.dcard-icon-wrap {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.dcard-icon-blue { background: #EFF6FF; }
+.dcard-icon-green { background: #ECFDF5; }
+
+/* Cards 2-3: Duo */
+.dcard-duo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+.dcard-half {
+    margin-bottom: 0;
+    text-align: center;
+    padding: 20px 16px 18px;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.dcard-half .dcard-label { margin-bottom: 10px; }
+
+.dcard-icon-center {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: #F3F4F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.dcard-goal-text { font-size: 0.88em; color: var(--text-secondary); margin-top: 4px; }
+
+.dcard-mid-value {
+    font-size: 1.45em;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+/* Mini gauge in pension card */
+.dcard-gauge-mini {
+    position: relative;
+    width: 68px; height: 68px;
+    margin: 0 auto 4px;
+}
+
+.gauge-mini-svg { width: 100%; height: 100%; }
+.gauge-mini-svg circle { transition: stroke-dashoffset 0.8s ease, stroke 0.4s ease; }
+
+.gauge-mini-pct {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.95em;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+/* Card 4: Total */
+.dcard-total { padding: 22px 28px; }
+.dcard-total-val { font-size: 1.8em; }
+
+/* Card 5: Insight */
+.dcard-insight {
+    background: linear-gradient(135deg, #FEF3C7, #FFFBEB);
+    border: 2px solid #FDE68A;
+    padding: 0;
+}
+
+.dcard-insight:hover { border-color: #F59E0B; }
+
+.dcard-insight-inner { padding: 18px 22px; }
+
+.dcard-insight-badge {
+    font-size: 0.88em;
+    font-weight: 800;
+    color: #92400E;
+    margin-bottom: 6px;
+}
+
+.dcard-insight-text {
+    font-size: 0.88em;
+    color: #78350F;
+    line-height: 1.6;
+}
+
+/* Report button */
+.dcard-report-row { margin-bottom: 14px; }
+
+.dcard-report-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: #FFFFFF;
+    border: 2px solid var(--brand-primary);
+    border-radius: 16px;
+    color: var(--brand-primary);
+    font-size: 1.05em;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+}
+
+.dcard-report-btn:hover {
+    background: var(--brand-primary);
+    color: white;
+    box-shadow: 0 4px 16px rgba(30, 64, 175, 0.2);
+}
+
+/* Snap row */
+.dash-snap-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Dashboard history */
+.dash-history { margin-bottom: 20px; }
+
+/* ============================================================
+   STRATEGY — Rows
+   ============================================================ */
+
+.strat-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: var(--radius);
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.strat-row:hover { box-shadow: var(--shadow-sm); }
+
+.strat-ok { background: #F0FDF4; border-color: #A7F3D0; }
+.strat-warn { background: #FFFBEB; border-color: #FDE68A; }
+.strat-bad { background: #FEF2F2; border-color: #FECACA; }
+
+.strat-row-icon { font-size: 1.5em; flex-shrink: 0; margin-top: 2px; }
+
+.strat-row-title {
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    font-size: 0.95em;
+}
+
+.strat-row-detail {
+    font-size: 0.85em;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.strat-row-status {
+    font-size: 0.82em;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 4px;
+}
+
+/* ============================================================
    INVESTMENTS DASHBOARD — Body Cards
    ============================================================ */
 
@@ -1700,6 +1935,15 @@ canvas { max-width: 100%; }
 
     .home-fab { bottom: 18px; left: 18px; width: 48px; height: 48px; }
     .home-fab svg { width: 20px; height: 20px; }
+
+    .dcard-big-value { font-size: 1.7em; }
+    .dcard-duo { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .dcard-half { min-height: 160px; padding: 16px 12px; }
+    .dcard-mid-value { font-size: 1.2em; }
+    .dcard-total-val { font-size: 1.5em; }
+
+    .dash-overview { grid-template-columns: 1fr; gap: 16px; }
+    .dash-actions { flex-direction: column; }
 
     .inv-actions-row { flex-direction: column; gap: 12px; }
     .inv-add-btn { max-width: 100%; padding: 16px 20px; font-size: 1em; }
